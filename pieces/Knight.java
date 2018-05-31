@@ -1,12 +1,21 @@
 package pieces;
 
+import game.*;
+import java.util.List;
+
 public class Knight extends Piece {
-    public Knight(String team, int[] location) {
+    public Knight(Board board, String team, int[] location) {
+        this.board = board;
+        this.location = location;
         setTeam(team);
-        setLocation(location);
+        board.movePiece(this, location);
     }
 
     public String pieceCode() {
         return "Kn";
+    }
+
+    public List<int[]> calculateMoves() {
+        return moves;
     }
 }

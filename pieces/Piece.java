@@ -1,17 +1,30 @@
 package pieces;
 
+import game.*;
+import java.util.List;
+import java.util.Random;
+import java.util.Arrays;
+
 public abstract class Piece {
-    int[] location = new int[2];
-    String team;
+    public int[] location;
+    public String team;
+    public List<int[]> moves;
+    private Random rand = new Random();
+    public Board board; 
 
     public abstract String pieceCode();
 
-    public int[] getLocation() {
-        return location;
+    public abstract List<int[]> calculateMoves();
+
+    public void randomMove() {
+        if (moves.size() > 0) {
+            int move = rand.nextInt(moves.size());
+            board.movePiece(this, moves.get(move));
+        }
     }
 
     public void setLocation(int[] newLocation) {
-        location = newLocation;
+        location = newLocation;        
     }
 
     public void setTeam(String team) {
@@ -21,6 +34,4 @@ public abstract class Piece {
     public String getTeam() {
         return team;
     }
-
-    
 }
