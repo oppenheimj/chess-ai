@@ -10,21 +10,27 @@ public abstract class Piece {
     public String team;
     public List<int[]> moves;
     private Random rand = new Random();
-    public Board board; 
+    public Board board;
+    public String symbol;
 
-    public abstract String pieceCode();
+    public String symbol() {
+        return team.equals("B") ? symbol.toUpperCase() : symbol;
+    }
 
     public abstract List<int[]> calculateMoves();
 
     public void randomMove() {
+        System.out.println("Moving piece " + symbol() + ", which has " + moves.size() + " possible moves");
         if (moves.size() > 0) {
-            int move = rand.nextInt(moves.size());
-            board.movePiece(this, moves.get(move));
+            int moveChoice = rand.nextInt(moves.size());
+            move(moves.get(moveChoice));
         }
     }
 
-    public void setLocation(int[] newLocation) {
-        location = newLocation;        
+    public void move(int[] newLocation) {
+        board.board[location[0]][location[1]] = null;
+        board.board[newLocation[0]][newLocation[1]] = this;
+        location = newLocation;
     }
 
     public void setTeam(String team) {

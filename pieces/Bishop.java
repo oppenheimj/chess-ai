@@ -5,15 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Bishop extends Piece {
+
     public Bishop(Board board, String team, int[] location) {
+        symbol = "b";
         this.board = board;
         this.location = location;
         setTeam(team);
-        board.movePiece(this, location);
-    }
-
-    public String pieceCode() {
-        return "B";
+        move(location);
     }
 
     public List<int[]> calculateMoves() {
