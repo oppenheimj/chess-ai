@@ -26,7 +26,15 @@ public class Board {
 
     public boolean validLocation(int[] location) {
         return location[0] >= 0 && location[0] < 8 &&
-            location[1] >= 0 && location[1] < 8 &&
-            board[location[0]][location[1]] == null;
+            location[1] >= 0 && location[1] < 8;
+    }
+
+    public boolean unoccupiedLocation(int[] location) {
+        return board[location[0]][location[1]] == null;
+    }
+
+    public Piece teamPieceAtLocation(String team, int[] location) {
+        Piece piece = board[location[0]][location[1]];
+        return (piece != null && piece.team.equals(team)) ? piece : null; 
     }
 }

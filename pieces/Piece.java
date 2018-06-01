@@ -8,7 +8,9 @@ import java.util.Arrays;
 public abstract class Piece {
     public int[] location;
     public String team;
+    public String enemy;
     public List<int[]> moves;
+    public List<Piece> attackMoves;
     private Random rand = new Random();
     public Board board;
     public String symbol;
@@ -35,6 +37,7 @@ public abstract class Piece {
 
     public void setTeam(String team) {
         this.team = team;
+        enemy = team.equals("W") ? "B" : "W";
     }
 
     public String getTeam() {

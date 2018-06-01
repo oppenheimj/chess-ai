@@ -16,30 +16,25 @@ public class King extends Piece {
 
     public List<int[]> calculateMoves() {
         moves = new ArrayList<>();
+        attackMoves = new ArrayList<>();
 
-        if (board.validLocation(new int[] {location[0]-1, location[1]} )) {
-            moves.add(new int[]{location[0]-1, location[1]});
-        }
-        if (board.validLocation(new int[] {location[0]-1, location[1]+1} )) {
-            moves.add(new int[]{location[0]-1, location[1]+1});
-        }
-        if (board.validLocation(new int[] {location[0], location[1]+1} )) {
-            moves.add(new int[]{location[0], location[1]+1});
-        }
-        if (board.validLocation(new int[] {location[0]+1, location[1]+1} )) {
-            moves.add(new int[]{location[0]+1, location[1]+1});
-        }
-        if (board.validLocation(new int[] {location[0]+1, location[1]} )) {
-            moves.add(new int[]{location[0]+1, location[1]});
-        }
-        if (board.validLocation(new int[] {location[0]+1, location[1]-1} )) {
-            moves.add(new int[]{location[0]+1, location[1]-1});
-        }
-        if (board.validLocation(new int[] {location[0], location[1]-1} )) {
-            moves.add(new int[]{location[0], location[1]-1});
-        }
-        if (board.validLocation(new int[] {location[0]-1, location[1]-1} )) {
-            moves.add(new int[]{location[0]-1, location[1]-1});
+        int[][] nextLocations = {
+            {location[0]-1, location[1]},
+            {location[0]-1, location[1]+1},
+            {location[0], location[1]+1},
+            {location[0]+1, location[1]+1},
+            {location[0]+1, location[1]},
+            {location[0]+1, location[1]-1},
+            {location[0], location[1]-1},
+            {location[0]-1, location[1]-1}
+        };
+
+        for (int[] nextLocation : nextLocations) {
+            if (board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
+                moves.add(nextLocation);
+            } else if (board.validLocation(nextLocation) && board.teamPieceAtLocation(enemy, nextLocation) != null) {
+                attackMoves.add(board.teamPieceAtLocation(enemy, nextLocation));
+            }
         }
 
         return moves;

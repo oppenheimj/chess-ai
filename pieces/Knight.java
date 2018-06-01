@@ -15,35 +15,28 @@ public class Knight extends Piece {
     }
 
     public List<int[]> calculateMoves() {
-        moves = new ArrayList<int[]>();
+        moves = new ArrayList<>();
+        attackMoves = new ArrayList<>();
+    
+        int[][] nextLocations = {
+            {location[0]-1, location[1]+2},
+            {location[0]-2, location[1]+1},
+            {location[0]+1, location[1]-2},
+            {location[0]+2, location[1]-1},
+            {location[0]+1, location[1]+2},
+            {location[0]+2, location[1]+1},
+            {location[0]-1, location[1]-2},
+            {location[0]-2, location[1]-1}
+        };
 
-        if (board.validLocation(new int[] {location[0]-1, location[1]+2} )) {
-            moves.add(new int[]{location[0]-1, location[1]+2});
-        }
-        if (board.validLocation(new int[] {location[0]-2, location[1]+1} )) {
-            moves.add(new int[]{location[0]-2, location[1]+1});
-        }
-
-        if (board.validLocation(new int[] {location[0]+1, location[1]-2} )) {
-            moves.add(new int[]{location[0]+1, location[1]-2});
-        }
-        if (board.validLocation(new int[] {location[0]+2, location[1]-1} )) {
-            moves.add(new int[]{location[0]+2, location[1]-1});
+        for (int[] nextLocation : nextLocations) {
+            if (board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
+                moves.add(nextLocation);
+            } else if (board.validLocation(nextLocation) && board.teamPieceAtLocation(enemy, nextLocation) != null) {
+                attackMoves.add(board.teamPieceAtLocation(enemy, nextLocation));
+            }
         }
 
-        if (board.validLocation(new int[] {location[0]+1, location[1]+2} )) {
-            moves.add(new int[]{location[0]+1, location[1]+2});
-        }
-        if (board.validLocation(new int[] {location[0]+2, location[1]+1} )) {
-            moves.add(new int[]{location[0]+2, location[1]+1});
-        }
-
-        if (board.validLocation(new int[] {location[0]-1, location[1]-2} )) {
-            moves.add(new int[]{location[0]-1, location[1]-2});
-        }
-        if (board.validLocation(new int[] {location[0]-2, location[1]-1} )) {
-            moves.add(new int[]{location[0]-2, location[1]-1});
-        }
         return moves;
     }
 }

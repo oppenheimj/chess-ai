@@ -9,6 +9,7 @@ public class Game {
     Pieces pieces;
     String turn = "W";
     Random rand = new Random();
+    Boolean check = false;
 
     public Game() {
         board = new Board();

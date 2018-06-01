@@ -15,20 +15,47 @@ public class Pawn extends Piece {
     }
 
     public List<int[]> calculateMoves() {
-        moves = new ArrayList<int[]>();
+        moves = new ArrayList<>();
+        attackMoves = new ArrayList<>();
 
         if (team.equals("W")) {
-            if (board.validLocation(new int[] {location[0]-1, location[1]} )) {
-                moves.add(new int[]{location[0]-1, location[1]});
-                if (location[0] == 6 && board.validLocation(new int[] {location[0]-2, location[1]} )) {
-                    moves.add(new int[] {location[0]-2, location[1]});
+            int[] nextLocation = new int[]{location[0]-1, location[1]};
+            if (board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
+                moves.add(nextLocation);
+                nextLocation = new int[] {location[0]-2, location[1]};
+                if (location[0] == 6 && board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
+                    moves.add(nextLocation);
+                }
+            }
+
+            int[][] attackLocations = {
+                {location[0]-1, location[1]-1},
+                {location[0]-1, location[1]+1}
+            };
+
+            for (int[] attackLocation : attackLocations) {
+                if (board.validLocation(attackLocation) && board.teamPieceAtLocation(enemy, attackLocation) != null) {
+                    attackMoves.add(board.teamPieceAtLocation(enemy, attackLocation));
                 }
             }
         } else {
-            if (board.validLocation(new int[] {location[0]+1, location[1]} )) {
-                moves.add(new int[]{location[0]+1, location[1]});
-                if (location[0] == 1 && board.validLocation(new int[] {location[0]+2, location[1]} )) {
-                    moves.add(new int[] {location[0]+2, location[1]});
+            int[] nextLocation = new int[] {location[0]+1, location[1]};
+            if (board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
+                moves.add(nextLocation);
+                nextLocation = new int[] {location[0]+2, location[1]};
+                if (location[0] == 1 && board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
+                    moves.add(nextLocation);
+                }
+            }
+            
+            int[][] attackLocations = {
+                {location[0]+1, location[1]-1},
+                {location[0]+1, location[1]+1}
+            };
+
+            for (int[] attackLocation : attackLocations) {
+                if (board.validLocation(attackLocation) && board.teamPieceAtLocation(enemy, attackLocation) != null) {
+                    attackMoves.add(board.teamPieceAtLocation(enemy, attackLocation));
                 }
             }
         }
