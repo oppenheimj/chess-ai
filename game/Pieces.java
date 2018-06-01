@@ -5,14 +5,46 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Pieces {
-    List<Piece> blackPieces = new ArrayList<>();
-    List<Piece> whitePieces = new ArrayList<>();
-    Board board;
+    public List<Piece> blackPieces = new ArrayList<>();
+    public List<Piece> whitePieces = new ArrayList<>();
     public final int BOARD_DIMENSION = 8;
+    private Board board;
 
     public Pieces(Board board) {
         this.board = board;
         initializePieces();
+    }
+
+    public List<Piece> getPiecesBelongingToTeam(String team) {
+        return team.equals("W") ? whitePieces : blackPieces;
+    }
+
+    public void calculateMoves() {
+        for (Piece piece : blackPieces) {
+            piece.calculateMoves();
+        }
+        for (Piece piece : whitePieces) {
+            piece.calculateMoves();
+        }
+    }
+
+    public void deletePiece(Piece piece) {
+        if (piece.team.equals("W")) {
+            whitePieces.remove(piece);
+        } else {
+            blackPieces.remove(piece);
+        }
+    }
+
+    public Piece kingOfTeam(String team) {
+        List<Piece> pieces = getPiecesBelongingToTeam(team);
+        Piece king = null;
+        for (Piece piece : pieces) {
+            if (piece instanceof King) {
+                king = piece;
+            }
+        }
+        return king;
     }
 
     private void initializePieces() {

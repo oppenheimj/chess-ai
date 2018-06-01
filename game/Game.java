@@ -15,29 +15,38 @@ public class Game {
         board = new Board();
         pieces = new Pieces(board);
         board.display();
+
+        MoveCalculator moveCalculator = new MoveCalculator();
+    }
+
+    public void kill(Piece attacker, Piece victim) {
+        attacker.move(victim.location);
+        pieces.deletePiece(victim);
     }
 
     public void nextState(Boolean showResult) {
-        if (turn.equals("W")) {
-            movePieceFromSet(pieces.whitePieces);
-            turn = "B";
+        if (check) {
+            Piece king = pieces.kingOfTeam(turn);
+            DecisionMaker.checkResolution(king, this);
+            if (check) {
+                System.out.println("GG");
+            }
         } else {
-            movePieceFromSet(pieces.blackPieces);
-            turn = "W";
+            List<Piece> currentTurnPieces = pieces.getPiecesBelongingToTeam(turn);
+            pieces.calculateMoves();
+            DecisionMaker.makeMove(currentTurnPieces, this);
+            pieces.calculateMoves();
+            for (Piece piece : currentTurnPieces) {
+                if (piece.attackMoves.contains(pieces.kingOfTeam(turn.equals("W") ? "B" : "W"))) {
+                    System.out.println("CHECK!");
+                    check = true;
+                }
+            }
         }
+        turn = turn == "W" ? "B" : "W";
 
         if (showResult) {
             board.display();
         }
-    }
-
-    private void movePieceFromSet(List<Piece> pieceSet) {
-        int numPieces = pieceSet.size();
-        int piece = rand.nextInt(numPieces);
-        while (pieceSet.get(piece).calculateMoves().size() == 0) {
-            piece = rand.nextInt(numPieces);
-        }
-        pieceSet.get(piece).randomMove();
-        
     }
 }
