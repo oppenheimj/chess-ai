@@ -1,32 +1,35 @@
 package game;
 
 import pieces.*;
-import java.util.Random;
 import java.util.List;
 
 public class Game {
     Board board;
     Pieces pieces;
     String turn = "W";
-    Random rand = new Random();
     Boolean check = false;
 
     public Game() {
         board = new Board();
         pieces = new Pieces(board);
         board.display();
+    }
 
-        MoveCalculator moveCalculator = new MoveCalculator();
+    public Game(Game otherGame) {
+        board = otherGame.board;
+        pieces = otherGame.pieces;
+        turn = otherGame.turn;
+        check = otherGame.check;
     }
 
     public void kill(Piece attacker, Piece victim) {
-        attacker.move(victim.location);
+        board.move(attacker, victim.getLocation());
         pieces.deletePiece(victim);
     }
 
     public void nextState(Boolean showResult) {
         if (check) {
-            Piece king = pieces.kingOfTeam(turn);
+            Piece king = pieces.getKingOfTeam(turn);
             DecisionMaker.checkResolution(king, this);
             if (check) {
                 System.out.println("GG");
@@ -37,7 +40,7 @@ public class Game {
             DecisionMaker.makeMove(currentTurnPieces, this);
             pieces.calculateMoves();
             for (Piece piece : currentTurnPieces) {
-                if (piece.attackMoves.contains(pieces.kingOfTeam(turn.equals("W") ? "B" : "W"))) {
+                if (piece.attackMoves.contains(pieces.getKingOfTeam(turn.equals("W") ? "B" : "W"))) {
                     System.out.println("CHECK!");
                     check = true;
                 }

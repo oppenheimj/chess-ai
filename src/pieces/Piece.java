@@ -6,33 +6,32 @@ import java.util.Random;
 import java.util.Arrays;
 
 public abstract class Piece {
-    public int[] location;
-    public String team;
-    public String enemy;
+    protected String symbol;
+    protected int[] location;
+
+    protected String team;
+    protected String enemy;
+
     public List<int[]> moves;
     public List<Piece> attackMoves;
+
     private Random rand = new Random();
     public Board board;
-    public String symbol;
 
-    public String symbol() {
-        return team.equals("B") ? symbol.toUpperCase() : symbol;
-    }
+    public boolean threatened;
+    public boolean defended;
+
+    public boolean threatening;
+    public boolean defending;
 
     public abstract List<int[]> calculateMoves();
 
-    public void randomMove() {
-        System.out.println("Moving piece " + symbol() + ", which has " + moves.size() + " possible moves");
-        if (moves.size() > 0) {
-            int moveChoice = rand.nextInt(moves.size());
-            move(moves.get(moveChoice));
-        }
+    public String getSymbol() {
+        return team.equals("B") ? symbol.toUpperCase() : symbol;
     }
 
-    public void move(int[] newLocation) {
-        board.board[location[0]][location[1]] = null;
-        board.board[newLocation[0]][newLocation[1]] = this;
-        location = newLocation;
+    public String getTeam() {
+        return team;
     }
 
     public void setTeam(String team) {
@@ -40,7 +39,19 @@ public abstract class Piece {
         enemy = team.equals("W") ? "B" : "W";
     }
 
-    public String getTeam() {
-        return team;
+    public int[] getLocation() {
+        return location;
+    }
+
+    public void setLocation(int[] newLocation) {
+        location = newLocation;
+    }
+
+    public void randomMove() {
+        System.out.println("Moving piece " + symbol + ", which has " + moves.size() + " possible moves");
+        if (moves.size() > 0) {
+            int moveChoice = rand.nextInt(moves.size());
+            board.move(this, moves.get(moveChoice));
+        }
     }
 }

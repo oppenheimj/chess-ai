@@ -11,7 +11,7 @@ public class King extends Piece {
         this.board = board;
         this.location = location;
         setTeam(team);
-        move(location);
+        board.move(this, location);
     }
 
     public List<int[]> calculateMoves() {

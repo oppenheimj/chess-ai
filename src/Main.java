@@ -4,8 +4,8 @@ public class Main {
     public static void main(String[] args) {
         Game game = new Game();
 
-        for (int i = 0; i < 500; i++) {
-            game.nextState(false);
+        for (int i = 0; i < 10; i++) {
+            game.nextState(true);
         }
     }
 }

@@ -7,16 +7,12 @@ import java.util.ArrayList;
 public class Pieces {
     public List<Piece> blackPieces = new ArrayList<>();
     public List<Piece> whitePieces = new ArrayList<>();
-    public final int BOARD_DIMENSION = 8;
+
     private Board board;
 
     public Pieces(Board board) {
         this.board = board;
         initializePieces();
-    }
-
-    public List<Piece> getPiecesBelongingToTeam(String team) {
-        return team.equals("W") ? whitePieces : blackPieces;
     }
 
     public void calculateMoves() {
@@ -29,14 +25,18 @@ public class Pieces {
     }
 
     public void deletePiece(Piece piece) {
-        if (piece.team.equals("W")) {
+        if (piece.getTeam().equals("W")) {
             whitePieces.remove(piece);
         } else {
             blackPieces.remove(piece);
         }
     }
 
-    public Piece kingOfTeam(String team) {
+    public List<Piece> getPiecesBelongingToTeam(String team) {
+        return team.equals("W") ? whitePieces : blackPieces;
+    }
+
+    public Piece getKingOfTeam(String team) {
         List<Piece> pieces = getPiecesBelongingToTeam(team);
         Piece king = null;
         for (Piece piece : pieces) {
@@ -57,7 +57,7 @@ public class Pieces {
 
     private List<Piece> generatePawnRow(String team, int row) {
         List<Piece> pieces = new ArrayList<>();
-        for (int i = 0; i < BOARD_DIMENSION; i++) {
+        for (int i = 0; i < board.BOARD_DIMENSION; i++) {
             int[] location = new int[]{row, i};
             pieces.add(new Pawn(board, team, location));
         }
@@ -66,7 +66,7 @@ public class Pieces {
 
     private List<Piece> generatePowerRow(String team, int row) {
         List<Piece> pieces = new ArrayList<>();
-        for (int i = 0; i < BOARD_DIMENSION; i++) {
+        for (int i = 0; i < board.BOARD_DIMENSION; i++) {
             int[] location = new int[]{row, i};
             if (i == 0 || i == 7) {
                 pieces.add(new Rook(board, team, location));

@@ -9,7 +9,7 @@ public class DecisionMaker  {
     static Random rand = new Random();
 
     public static Boolean pieceUnderThreat(Pieces pieces, Piece piece) {
-        String enemyTeam = piece.team.equals("W") ? "B" : "W";
+        String enemyTeam = piece.getTeam().equals("W") ? "B" : "W";
         List<Piece> enemyPieces = pieces.getPiecesBelongingToTeam(enemyTeam);
         pieces.calculateMoves();
 
@@ -22,6 +22,9 @@ public class DecisionMaker  {
     }
 
     public static void checkResolution(Piece king, Game game) {
+        Board board = game.board;
+        Pieces pieces = game.pieces;
+
         king.calculateMoves();
         List<int[]> kingsMoves = king.moves;
         List<Piece> kingsKills = king.attackMoves;
@@ -29,24 +32,24 @@ public class DecisionMaker  {
         List<int[]> validMoves = new ArrayList<>();
         List<Piece> validKills = new ArrayList<>();
 
-        int[] originalLocation = king.location;
+        int[] originalLocation = king.getLocation();
 
         for (int[] location : kingsMoves) {
-            king.move(location);
-            if (!pieceUnderThreat(game.pieces, king)) {
+            board.move(king, location);
+            if (!pieceUnderThreat(pieces, king)) {
                 validMoves.add(location);
             }
-            king.move(originalLocation);
+            board.move(king, originalLocation);
         }
 
         for (Piece targetKill : kingsKills) {
-            Piece victim = game.board.board[targetKill.location[0]][targetKill.location[1]];
-            king.move(targetKill.location);
+            int[] location = targetKill.getLocation();
+            board.move(king, targetKill.getLocation());
             if (!pieceUnderThreat(game.pieces, king)) {
                 validKills.add(targetKill);
             }
-            king.move(originalLocation);
-            victim.move(targetKill.location);
+            board.move(king, originalLocation);
+            board.move(targetKill, location);
         }
 
         if (validKills.size() > 0) {
@@ -55,7 +58,7 @@ public class DecisionMaker  {
             game.check = false;
         } else if (validMoves.size() > 0) {
             System.out.println("Resolving by move");
-            king.move(validMoves.get(0));
+            board.move(king, validMoves.get(0));
             game.check = false;
         } else {
             System.out.println("GG");
@@ -80,7 +83,7 @@ public class DecisionMaker  {
             }
             Piece piece = pieceSet.get(chosenPiece);
             int chosenMove = rand.nextInt(piece.moves.size());
-            piece.move(piece.moves.get(chosenMove));
+            game.board.move(piece, piece.moves.get(chosenMove));
         }
     }
 }

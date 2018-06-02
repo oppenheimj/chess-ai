@@ -11,13 +11,14 @@ public class Pawn extends Piece {
         this.board = board;
         this.location = location;
         setTeam(team);
-        move(location);
+        board.move(this, location);
     }
 
     public List<int[]> calculateMoves() {
         moves = new ArrayList<>();
         attackMoves = new ArrayList<>();
 
+        //TODO: DRY
         if (team.equals("W")) {
             int[] nextLocation = new int[]{location[0]-1, location[1]};
             if (board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
