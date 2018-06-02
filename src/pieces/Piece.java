@@ -1,6 +1,8 @@
 package pieces;
 
 import game.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Arrays;
@@ -13,18 +15,24 @@ public abstract class Piece {
     protected String enemy;
 
     public List<int[]> moves;
-    public List<Piece> attackMoves;
+    public List<Piece> threatening;
+    public List<Piece> threatenedBy;
+    public List<Piece> defending;
+    public List<Piece> defendedBy;
+
 
     private Random rand = new Random();
     public Board board;
 
-    public boolean threatened;
-    public boolean defended;
-
-    public boolean threatening;
-    public boolean defending;
-
     public abstract List<int[]> calculateMoves();
+
+    protected void clearPostures() {
+        moves = new ArrayList<>();
+        threatening = new ArrayList<>();
+        threatenedBy = new ArrayList<>();
+        defending = new ArrayList<>();
+        defendedBy = new ArrayList<>();
+    }
 
     public String getSymbol() {
         return team.equals("B") ? symbol.toUpperCase() : symbol;

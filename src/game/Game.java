@@ -28,6 +28,8 @@ public class Game {
     }
 
     public void nextState(Boolean showResult) {
+        pieces.calculate();
+
         if (check) {
             Piece king = pieces.getKingOfTeam(turn);
             DecisionMaker.checkResolution(king, this);
@@ -36,11 +38,11 @@ public class Game {
             }
         } else {
             List<Piece> currentTurnPieces = pieces.getPiecesBelongingToTeam(turn);
-            pieces.calculateMoves();
             DecisionMaker.makeMove(currentTurnPieces, this);
-            pieces.calculateMoves();
+            pieces.calculate();
+
             for (Piece piece : currentTurnPieces) {
-                if (piece.attackMoves.contains(pieces.getKingOfTeam(turn.equals("W") ? "B" : "W"))) {
+                if (piece.threatening.contains(pieces.getKingOfTeam(turn.equals("W") ? "B" : "W"))) {
                     System.out.println("CHECK!");
                     check = true;
                 }

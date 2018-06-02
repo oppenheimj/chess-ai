@@ -8,17 +8,8 @@ import java.util.Random;
 public class DecisionMaker  {
     static Random rand = new Random();
 
-    public static Boolean pieceUnderThreat(Pieces pieces, Piece piece) {
-        String enemyTeam = piece.getTeam().equals("W") ? "B" : "W";
-        List<Piece> enemyPieces = pieces.getPiecesBelongingToTeam(enemyTeam);
-        pieces.calculateMoves();
-
-        List<Piece> targets = new ArrayList<>();
-        for (Piece enemyPiece : enemyPieces) {
-            targets.addAll(enemyPiece.attackMoves);
-        }
-
-        return targets.contains(piece);
+    public static Boolean pieceUnderThreat(Piece piece) {
+        return !piece.threatenedBy.isEmpty();
     }
 
     public static void checkResolution(Piece king, Game game) {
@@ -27,7 +18,7 @@ public class DecisionMaker  {
 
         king.calculateMoves();
         List<int[]> kingsMoves = king.moves;
-        List<Piece> kingsKills = king.attackMoves;
+        List<Piece> kingsKills = king.threatening;
 
         List<int[]> validMoves = new ArrayList<>();
         List<Piece> validKills = new ArrayList<>();
@@ -36,7 +27,7 @@ public class DecisionMaker  {
 
         for (int[] location : kingsMoves) {
             board.move(king, location);
-            if (!pieceUnderThreat(pieces, king)) {
+            if (!pieceUnderThreat(king)) {
                 validMoves.add(location);
             }
             board.move(king, originalLocation);
@@ -45,7 +36,7 @@ public class DecisionMaker  {
         for (Piece targetKill : kingsKills) {
             int[] location = targetKill.getLocation();
             board.move(king, targetKill.getLocation());
-            if (!pieceUnderThreat(game.pieces, king)) {
+            if (!pieceUnderThreat(king)) {
                 validKills.add(targetKill);
             }
             board.move(king, originalLocation);
@@ -69,8 +60,8 @@ public class DecisionMaker  {
     public static void makeMove(List<Piece> pieceSet, Game game) {
         boolean killMade = false;
         for (Piece piece : pieceSet) {
-            if (piece.attackMoves.size() > 0) {
-                game.kill(piece, piece.attackMoves.get(0));
+            if (!piece.threatening.isEmpty()) {
+                game.kill(piece, piece.threatening.get(0));
                 killMade = true;
                 System.out.println("KILL");
                 break;
@@ -78,7 +69,7 @@ public class DecisionMaker  {
         }
         if (!killMade) {
             int chosenPiece = rand.nextInt(pieceSet.size());
-            while (pieceSet.get(chosenPiece) instanceof King || pieceSet.get(chosenPiece).moves.size() == 0) {
+            while (pieceSet.get(chosenPiece) instanceof King || pieceSet.get(chosenPiece).moves.isEmpty()) {
                 chosenPiece = rand.nextInt(pieceSet.size());
             }
             Piece piece = pieceSet.get(chosenPiece);

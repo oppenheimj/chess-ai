@@ -15,12 +15,11 @@ public class Pawn extends Piece {
     }
 
     public List<int[]> calculateMoves() {
-        moves = new ArrayList<>();
-        attackMoves = new ArrayList<>();
+        clearPostures();
 
-        //TODO: DRY
+        //TODO: DRY this up!
         if (team.equals("W")) {
-            int[] nextLocation = new int[]{location[0]-1, location[1]};
+            int[] nextLocation = {location[0]-1, location[1]};
             if (board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
                 moves.add(nextLocation);
                 nextLocation = new int[] {location[0]-2, location[1]};
@@ -35,12 +34,16 @@ public class Pawn extends Piece {
             };
 
             for (int[] attackLocation : attackLocations) {
-                if (board.validLocation(attackLocation) && board.teamPieceAtLocation(enemy, attackLocation) != null) {
-                    attackMoves.add(board.teamPieceAtLocation(enemy, attackLocation));
+                if (board.validLocation(attackLocation) && !board.unoccupiedLocation(attackLocation)) {
+                    if (board.teamPieceAtLocation(enemy, attackLocation) != null) {
+                        threatening.add(board.teamPieceAtLocation(enemy, attackLocation));
+                    } else {
+                        defending.add(board.pieceAtLocation(attackLocation));
+                    }
                 }
             }
         } else {
-            int[] nextLocation = new int[] {location[0]+1, location[1]};
+            int[] nextLocation = {location[0]+1, location[1]};
             if (board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
                 moves.add(nextLocation);
                 nextLocation = new int[] {location[0]+2, location[1]};
@@ -55,8 +58,12 @@ public class Pawn extends Piece {
             };
 
             for (int[] attackLocation : attackLocations) {
-                if (board.validLocation(attackLocation) && board.teamPieceAtLocation(enemy, attackLocation) != null) {
-                    attackMoves.add(board.teamPieceAtLocation(enemy, attackLocation));
+                if (board.validLocation(attackLocation) && !board.unoccupiedLocation(attackLocation)) {
+                    if (board.teamPieceAtLocation(enemy, attackLocation) != null) {
+                        threatening.add(board.teamPieceAtLocation(enemy, attackLocation));
+                    } else {
+                        defending.add(board.pieceAtLocation(attackLocation));
+                    }
                 }
             }
         }

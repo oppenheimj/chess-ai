@@ -36,6 +36,10 @@ public class Board {
         return (piece != null && piece.getTeam().equals(team)) ? piece : null;
     }
 
+    public Piece pieceAtLocation(int[] location) {
+        return board[location[0]][location[1]];
+    }
+
     public void display() {
         for (Piece[] row : board) {
             for (Piece piece : row) {

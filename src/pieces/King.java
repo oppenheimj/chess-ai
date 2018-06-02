@@ -15,8 +15,7 @@ public class King extends Piece {
     }
 
     public List<int[]> calculateMoves() {
-        moves = new ArrayList<>();
-        attackMoves = new ArrayList<>();
+        clearPostures();
 
         int[][] nextLocations = {
             {location[0]-1, location[1]},
@@ -30,10 +29,14 @@ public class King extends Piece {
         };
 
         for (int[] nextLocation : nextLocations) {
-            if (board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
-                moves.add(nextLocation);
-            } else if (board.validLocation(nextLocation) && board.teamPieceAtLocation(enemy, nextLocation) != null) {
-                attackMoves.add(board.teamPieceAtLocation(enemy, nextLocation));
+            if (board.validLocation(nextLocation)) {
+                if (board.unoccupiedLocation(nextLocation)) {
+                    moves.add(nextLocation);
+                } else if (board.teamPieceAtLocation(enemy, nextLocation) != null) {
+                    threatening.add(board.teamPieceAtLocation(enemy, nextLocation));
+                } else {
+                    defending.add(board.pieceAtLocation(nextLocation));
+                }
             }
         }
 

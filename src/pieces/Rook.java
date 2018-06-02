@@ -15,8 +15,7 @@ public class Rook extends Piece {
     }
 
     public List<int[]> calculateMoves() {
-        moves = new ArrayList<>();
-        attackMoves = new ArrayList<>();
+        clearPostures();
 
         int numDirections = 4;
 
@@ -28,10 +27,12 @@ public class Rook extends Piece {
                 i++;
                 nextLocation = locationGenerator(i, direction);
             }
-            if (board.validLocation(nextLocation) && board.teamPieceAtLocation(enemy, nextLocation) != null) {
-                attackMoves.add(
-                    board.teamPieceAtLocation(enemy, nextLocation)
-                );
+            if (board.validLocation(nextLocation)) {
+                if (board.teamPieceAtLocation(enemy, nextLocation) != null) {
+                    threatening.add(board.teamPieceAtLocation(enemy, nextLocation));
+                } else {
+                    defending.add(board.pieceAtLocation(nextLocation));
+                }
             }
         }
 

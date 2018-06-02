@@ -1,12 +1,14 @@
 package game;
 
 import pieces.*;
+
 import java.util.List;
 import java.util.ArrayList;
 
 public class Pieces {
     public List<Piece> blackPieces = new ArrayList<>();
     public List<Piece> whitePieces = new ArrayList<>();
+    public List<List> pieceSets = new ArrayList<>();
 
     private Board board;
 
@@ -15,12 +17,33 @@ public class Pieces {
         initializePieces();
     }
 
-    public void calculateMoves() {
-        for (Piece piece : blackPieces) {
-            piece.calculateMoves();
+    public void calculate() {
+        calculateMovesThreateningDefending();
+        calculateThreatenedByDefendedBy();
+    }
+
+    public void calculateMovesThreateningDefending() {
+        for (List<Piece> pieceSet : pieceSets) {
+            for (Piece piece : pieceSet) {
+                piece.calculateMoves();
+            }
         }
-        for (Piece piece : whitePieces) {
-            piece.calculateMoves();
+    }
+
+    public void calculateThreatenedByDefendedBy() {
+        for (List<Piece> friendlies : pieceSets) {
+            for (Piece friendly : friendlies) {
+                if (!friendly.threatening.isEmpty()) {
+                    for (Piece enemy : friendly.threatening) {
+                        enemy.threatenedBy.add(friendly);
+                    }
+                }
+                if (!friendly.defending.isEmpty()) {
+                    for (Piece defendedFriendly : friendly.defending) {
+                        defendedFriendly.defendedBy.add(friendly);
+                    }
+                }
+            }
         }
     }
 
@@ -53,6 +76,9 @@ public class Pieces {
 
         whitePieces.addAll(generatePawnRow("W", 6));
         whitePieces.addAll(generatePowerRow("W", 7));
+
+        pieceSets.add(blackPieces);
+        pieceSets.add(whitePieces);
     }
 
     private List<Piece> generatePawnRow(String team, int row) {
