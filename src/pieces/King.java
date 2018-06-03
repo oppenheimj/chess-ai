@@ -53,7 +53,6 @@ public class King extends Piece {
         List<int[]> movesToRemove = new ArrayList<>();
 
         for (int[] move : moves) {
-            //if (!validSpaceForKing((move)) || (pieces.getKingOfTeam(enemy) != null && cancelSpaceWithOtherKing(move))) {
             if (cancelSpaceWithOtherKing(move) || !validSpaceForKing((move))) {
                 movesToRemove.add(move);
             }

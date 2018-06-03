@@ -4,8 +4,6 @@ import game.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.Arrays;
 
 public abstract class Piece {
     protected String symbol;
@@ -20,8 +18,6 @@ public abstract class Piece {
     public List<Piece> defending;
     public List<Piece> defendedBy;
 
-
-    private Random rand = new Random();
     public Board board;
 
     public abstract List<int[]> calculateMoves();
@@ -32,6 +28,17 @@ public abstract class Piece {
         threatenedBy = new ArrayList<>();
         defending = new ArrayList<>();
         defendedBy = new ArrayList<>();
+    }
+
+    public void undoPostures() {
+        for (Piece threatenedPiece : threatening) {
+            threatenedPiece.threatenedBy.remove(this);
+        }
+        for (Piece defendedPiece : defending) {
+            defendedPiece.defendedBy.remove(this);
+        }
+        threatening = new ArrayList<>();
+        defending = new ArrayList<>();
     }
 
     public String getSymbol() {
@@ -47,19 +54,15 @@ public abstract class Piece {
         enemy = team.equals("W") ? "B" : "W";
     }
 
+    public String getEnemy() {
+        return enemy;
+    }
+
     public int[] getLocation() {
         return location;
     }
 
     public void setLocation(int[] newLocation) {
         location = newLocation;
-    }
-
-    public void randomMove() {
-        System.out.println("Moving piece " + symbol + ", which has " + moves.size() + " possible moves");
-        if (moves.size() > 0) {
-            int moveChoice = rand.nextInt(moves.size());
-            board.move(this, moves.get(moveChoice));
-        }
     }
 }

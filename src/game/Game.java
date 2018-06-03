@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
-    Board board;
-    Pieces pieces;
+    public Board board;
+    public Pieces pieces;
     String turn = "W";
     Boolean check = false;
 

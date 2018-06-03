@@ -2,6 +2,7 @@ package game;
 
 import pieces.*;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
@@ -23,6 +24,90 @@ public class Pieces {
         calculateThreatenedByDefendedBy();
 
         correctKingsPostures();
+        correctionAlgorithm();
+    }
+
+    //TODO rename this
+    public void correctionAlgorithm() {
+        List<King> kings = getKings();
+
+        for (King king : kings) {
+            for (int i = 0; i < 8; i++) {
+                if (i < 4) {
+                    boolean friendlySeen = false;
+                    boolean enemySeen = false;
+                    Piece friendly = null;
+                    Piece enemy = null;
+                    List<int[]> locationsTraversed = new ArrayList<>();
+                    for (int j = 1; j < board.BOARD_DIMENSION; j++) {
+                        int[] nextLocation = locationGenerator(king, j, i);
+                        if (board.validLocation(nextLocation)) {
+                            Piece pieceAtLocation = board.pieceAtLocation(nextLocation);
+                            if (pieceAtLocation != null) {
+                                if (pieceAtLocation.getTeam().equals(king.getTeam())) {
+                                    if (friendlySeen) {
+                                        break;
+                                    } else {
+                                        friendlySeen = true;
+                                        friendly = pieceAtLocation;
+                                    }
+                                } else {
+                                    if ((i < 4 && (pieceAtLocation instanceof Rook || pieceAtLocation instanceof Queen)) ||
+                                            (i >= 4 && (pieceAtLocation instanceof Bishop || pieceAtLocation instanceof Queen)) && friendlySeen) {
+                                        enemySeen = true;
+                                        enemy = pieceAtLocation;
+                                        break;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            } else {
+                                locationsTraversed.add(nextLocation);
+                            }
+                        }
+                    }
+                    if (friendlySeen && enemySeen) {
+                        friendly.moves = intersectLocationSets(friendly.moves, locationsTraversed);
+                        boolean threateningEnemy = friendly.threatening.contains(enemy);
+                        friendly.undoPostures();
+                        if (threateningEnemy) {
+                            friendly.threatening.add(enemy);
+                            enemy.threatenedBy.add(friendly);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public List<int[]> intersectLocationSets(List<int[]> currentMoves, List<int[]> acceptableMoves) {
+        List<int[]> intersection = new ArrayList<>();
+
+        for (int[] currentMove : currentMoves) {
+            for (int[] acceptableMove : acceptableMoves) {
+                if (Arrays.equals(currentMove, acceptableMove)) {
+                    intersection.add(currentMove);
+                }
+            }
+        }
+        return intersection;
+    }
+
+    public int[] locationGenerator(Piece piece, int i, int index) {
+        int[] location = piece.getLocation();
+
+        int[][] nextLocations = {
+                {location[0]-i, location[1]},
+                {location[0], location[1]+i},
+                {location[0]+i, location[1]},
+                {location[0], location[1]-i},
+                {location[0]-i, location[1]+i},
+                {location[0]+i, location[1]+i},
+                {location[0]+i, location[1]-i},
+                {location[0]-i, location[1]-i}
+        };
+
+        return nextLocations[index];
     }
 
     public void calculateMovesThreateningDefending() {

@@ -37,7 +37,6 @@ public class Queen extends Piece {
                         if (board.validLocation(nextLocation)) {
                             if (board.teamPieceAtLocation(team, nextLocation) != null) {
                                 defending.add(board.teamPieceAtLocation(team, nextLocation));
-                                //board.teamPieceAtLocation(team, nextLocation).defendedBy.add(this);
                             } else if (board.teamPieceAtLocation(enemy, nextLocation) == null) {
                                 moves.add(nextLocation);
                             }
