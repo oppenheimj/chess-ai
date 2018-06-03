@@ -76,7 +76,6 @@ public class King extends Piece {
         for (int[] move : moves) {
             if (Arrays.equals(move, space)) {
                 enemyKing.moves.remove(move);
-                System.out.println("CANCELING SPACE WITH OTHER KING");
                 return true;
             }
         }

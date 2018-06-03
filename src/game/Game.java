@@ -2,7 +2,6 @@ package game;
 
 import pieces.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
@@ -10,10 +9,12 @@ public class Game {
     public Pieces pieces;
     String turn = "W";
     Boolean check = false;
+    Piece checker = null;
 
     public Game() {
         board = new Board();
         pieces = new Pieces(board);
+        pieces.calculate();
         board.display();
     }
 
@@ -33,22 +34,22 @@ public class Game {
     }
 
     public void nextState(Boolean showResult) {
-        pieces.calculate();
-
+        List<Piece> currentTurnPieces = pieces.getPiecesBelongingToTeam(turn);
         if (check) {
             Piece king = pieces.getKingOfTeam(turn);
-            if (!DecisionMaker.checkResolution(king, this)) {
+            if (!DecisionMaker.checkResolution(king, this, checker)) {
                 System.out.println("GG! " + (turn.equals("W") ? "B" : "W") + " wins!");
                 System.exit(0);
             } else {
-                check = false;
+                pieces.calculate();
+                checker = DecisionMaker.checkDetection(pieces.getKingOfTeam(turn.equals("W") ? "B" : "W"), currentTurnPieces);
+                check = checker != null;
             }
         } else {
-            List<Piece> currentTurnPieces = pieces.getPiecesBelongingToTeam(turn);
             DecisionMaker.makeMove(currentTurnPieces, this);
             pieces.calculate();
-
-            check = DecisionMaker.checkDetection(pieces.getKingOfTeam(turn.equals("W") ? "B" : "W"), currentTurnPieces);
+            checker = DecisionMaker.checkDetection(pieces.getKingOfTeam(turn.equals("W") ? "B" : "W"), currentTurnPieces);
+            check = checker != null;
         }
         turn = turn == "W" ? "B" : "W";
 

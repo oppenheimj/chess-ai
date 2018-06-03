@@ -20,10 +20,11 @@ public class Bishop extends Piece {
         int numDirections = 4;
 
         for (int direction = 0; direction < numDirections; direction++) {
+            List<int[]> path = new ArrayList<>();
             int i = 1;
             int[] nextLocation = locationGenerator(i, direction);
-            //TODO move needs to make sure piece won't reveal king
             while (board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
+                path.add(nextLocation);
                 moves.add(nextLocation);
                 i++;
                 nextLocation = locationGenerator(i, direction);
@@ -31,9 +32,9 @@ public class Bishop extends Piece {
             if (board.validLocation(nextLocation)) {
                 if (board.teamPieceAtLocation(enemy, nextLocation) != null) {
                     Piece enemyPiece = board.teamPieceAtLocation(enemy, nextLocation);
-                    //TODO Can't threaten unless won't put king in check
                     threatening.add(enemyPiece);
                     if (enemyPiece instanceof King) {
+                        pathToEnemyKing = path;
                         i++;
                         nextLocation = locationGenerator(i, direction);
                         if (board.validLocation(nextLocation)) {

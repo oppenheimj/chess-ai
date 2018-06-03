@@ -18,6 +18,8 @@ public abstract class Piece {
     public List<Piece> defending;
     public List<Piece> defendedBy;
 
+    public List<int[]> pathToEnemyKing;
+
     public Board board;
 
     public abstract List<int[]> calculateMoves();
@@ -28,6 +30,7 @@ public abstract class Piece {
         threatenedBy = new ArrayList<>();
         defending = new ArrayList<>();
         defendedBy = new ArrayList<>();
+        pathToEnemyKing = new ArrayList<>();
     }
 
     public void undoPostures() {

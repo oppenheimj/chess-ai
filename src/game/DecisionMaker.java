@@ -1,38 +1,53 @@
 package game;
 
 import pieces.*;
+
 import java.util.List;
 import java.util.Random;
 
 public class DecisionMaker  {
     static Random rand = new Random();
 
-    public static Boolean pieceUnderThreat(Piece piece) {
-        return !piece.threatenedBy.isEmpty();
-    }
-
-    public static boolean checkResolution(Piece king, Game game) {
+    public static boolean checkResolution(Piece king, Game game, Piece checker) {
         Board board = game.board;
-        if (!king.threatening.isEmpty()) {
-            game.kill(king, king.threatening.get(0));
+        if (!checker.threatenedBy.isEmpty()) {
+            game.kill(checker.threatenedBy.get(0), checker);
             return true;
         } else if (!king.moves.isEmpty()) {
             board.move(king, king.moves.get(0));
             return true;
+        } else if (checker instanceof Queen || checker instanceof Rook || checker instanceof Bishop) {
+            return checkForBlock(game, king, checker);
         } else {
             System.out.println("GG");
             return false;
         }
     }
 
-    public static boolean checkDetection(Piece king, List<Piece> otherTeamsPieces) {
+    public static boolean checkForBlock(Game game, Piece king, Piece checker) {
+        boolean canBlock = false;
+        List<int[]> lineOfSight = checker.pathToEnemyKing;
+        List<Piece> friendlyPieces = game.pieces.getPiecesBelongingToTeam(king.getTeam());
+        for (Piece friendlyPiece : friendlyPieces) {
+            List<int[]> intersection = Pieces.intersectLocationSets(friendlyPiece.moves, lineOfSight);
+            if (!intersection.isEmpty()) {
+                canBlock = true;
+                game.board.move(friendlyPiece, intersection.get(0));
+            }
+        }
+        return canBlock;
+    }
+
+    public static Piece checkDetection(Piece king, List<Piece> otherTeamsPieces) {
+        Piece checker = null;
         for (Piece piece : otherTeamsPieces) {
             if (piece.threatening.contains(king)) {
                 System.out.println("CHECK!");
-                return true;
+                checker = piece;
+                break;
             }
         }
-        return false;
+        return checker;
     }
 
     public static void makeMove(List<Piece> pieceSet, Game game) {

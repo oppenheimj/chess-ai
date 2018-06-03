@@ -33,54 +33,52 @@ public class Pieces {
 
         for (King king : kings) {
             for (int i = 0; i < 8; i++) {
-                if (i < 4) {
-                    boolean friendlySeen = false;
-                    boolean enemySeen = false;
-                    Piece friendly = null;
-                    Piece enemy = null;
-                    List<int[]> locationsTraversed = new ArrayList<>();
-                    for (int j = 1; j < board.BOARD_DIMENSION; j++) {
-                        int[] nextLocation = locationGenerator(king, j, i);
-                        if (board.validLocation(nextLocation)) {
-                            Piece pieceAtLocation = board.pieceAtLocation(nextLocation);
-                            if (pieceAtLocation != null) {
-                                if (pieceAtLocation.getTeam().equals(king.getTeam())) {
-                                    if (friendlySeen) {
-                                        break;
-                                    } else {
-                                        friendlySeen = true;
-                                        friendly = pieceAtLocation;
-                                    }
+                boolean friendlySeen = false;
+                boolean enemySeen = false;
+                Piece friendly = null;
+                Piece enemy = null;
+                List<int[]> locationsTraversed = new ArrayList<>();
+                for (int j = 1; j < board.BOARD_DIMENSION; j++) {
+                    int[] nextLocation = locationGenerator(king, j, i);
+                    if (board.validLocation(nextLocation)) {
+                        Piece pieceAtLocation = board.pieceAtLocation(nextLocation);
+                        if (pieceAtLocation != null) {
+                            if (pieceAtLocation.getTeam().equals(king.getTeam())) {
+                                if (friendlySeen) {
+                                    break;
                                 } else {
-                                    if ((i < 4 && (pieceAtLocation instanceof Rook || pieceAtLocation instanceof Queen)) ||
-                                            (i >= 4 && (pieceAtLocation instanceof Bishop || pieceAtLocation instanceof Queen)) && friendlySeen) {
-                                        enemySeen = true;
-                                        enemy = pieceAtLocation;
-                                        break;
-                                    } else {
-                                        break;
-                                    }
+                                    friendlySeen = true;
+                                    friendly = pieceAtLocation;
                                 }
                             } else {
-                                locationsTraversed.add(nextLocation);
+                                if ((i < 4 && (pieceAtLocation instanceof Rook || pieceAtLocation instanceof Queen)) ||
+                                        (i >= 4 && (pieceAtLocation instanceof Bishop || pieceAtLocation instanceof Queen)) && friendlySeen) {
+                                    enemySeen = true;
+                                    enemy = pieceAtLocation;
+                                    break;
+                                } else {
+                                    break;
+                                }
                             }
+                        } else {
+                            locationsTraversed.add(nextLocation);
                         }
                     }
-                    if (friendlySeen && enemySeen) {
-                        friendly.moves = intersectLocationSets(friendly.moves, locationsTraversed);
-                        boolean threateningEnemy = friendly.threatening.contains(enemy);
-                        friendly.undoPostures();
-                        if (threateningEnemy) {
-                            friendly.threatening.add(enemy);
-                            enemy.threatenedBy.add(friendly);
-                        }
+                }
+                if (friendlySeen && enemySeen) {
+                    friendly.moves = intersectLocationSets(friendly.moves, locationsTraversed);
+                    boolean threateningEnemy = friendly.threatening.contains(enemy);
+                    friendly.undoPostures();
+                    if (threateningEnemy) {
+                        friendly.threatening.add(enemy);
+                        enemy.threatenedBy.add(friendly);
                     }
                 }
             }
         }
     }
 
-    public List<int[]> intersectLocationSets(List<int[]> currentMoves, List<int[]> acceptableMoves) {
+    public static List<int[]> intersectLocationSets(List<int[]> currentMoves, List<int[]> acceptableMoves) {
         List<int[]> intersection = new ArrayList<>();
 
         for (int[] currentMove : currentMoves) {

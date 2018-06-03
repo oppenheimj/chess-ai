@@ -20,9 +20,11 @@ public class Queen extends Piece {
         int numDirections = 8;
 
         for (int direction = 0; direction < numDirections; direction++) {
+            List<int[]> path = new ArrayList<>();
             int i = 1;
             int[] nextLocation = locationGenerator(i, direction);
             while (board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
+                path.add(nextLocation);
                 moves.add(nextLocation);
                 i++;
                 nextLocation = locationGenerator(i, direction);
@@ -32,6 +34,7 @@ public class Queen extends Piece {
                     Piece enemyPiece = board.teamPieceAtLocation(enemy, nextLocation);
                     threatening.add(enemyPiece);
                     if (enemyPiece instanceof King) {
+                        pathToEnemyKing = path;
                         i++;
                         nextLocation = locationGenerator(i, direction);
                         if (board.validLocation(nextLocation)) {
