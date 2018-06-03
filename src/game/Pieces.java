@@ -2,6 +2,7 @@ package game;
 
 import pieces.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -20,6 +21,8 @@ public class Pieces {
     public void calculate() {
         calculateMovesThreateningDefending();
         calculateThreatenedByDefendedBy();
+
+        correctKingsPostures();
     }
 
     public void calculateMovesThreateningDefending() {
@@ -47,6 +50,18 @@ public class Pieces {
         }
     }
 
+    public List<King> getKings() {
+        List<King> kings = new ArrayList<>();
+
+        kings.add((King)getKingOfTeam("W"));
+        kings.add((King)getKingOfTeam("B"));
+
+        kings.removeAll(Collections.singleton(null));
+
+        return kings;
+    }
+
+
     public void deletePiece(Piece piece) {
         if (piece.getTeam().equals("W")) {
             whitePieces.remove(piece);
@@ -68,6 +83,13 @@ public class Pieces {
             }
         }
         return king;
+    }
+
+    public void correctKingsPostures() {
+        List<King> kings = getKings();
+        for (King king : kings) {
+            king.correctKingPosture();
+        }
     }
 
     private void initializePieces() {
@@ -104,11 +126,11 @@ public class Pieces {
                 if (team.equals("W")) {
                     pieces.add(new Queen(board, team, location));
                 } else {
-                    pieces.add(new King(board, team, location));
+                    pieces.add(new King(board, team, location, this));
                 }
             } else {
                 if (team.equals("W")) {
-                    pieces.add(new King(board, team, location));
+                    pieces.add(new King(board, team, location, this));
                 } else {
                     pieces.add(new Queen(board, team, location));
                 }

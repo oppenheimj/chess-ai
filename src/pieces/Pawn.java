@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Pawn extends Piece {
+    public List<int[]> corners;
 
     public Pawn(Board board, String team, int[] location) {
         symbol = "p";
@@ -14,54 +15,46 @@ public class Pawn extends Piece {
         board.move(this, location);
     }
 
+    public int[] locationGenerator(int spaces, int index) {
+        int[][] nextLocations = {
+                {location[0]-spaces, location[1]},
+                {location[0]+spaces, location[1]},
+        };
+
+        return nextLocations[index];
+    }
+
     public List<int[]> calculateMoves() {
         clearPostures();
+        corners = new ArrayList<>();
 
-        //TODO: DRY this up!
-        if (team.equals("W")) {
-            int[] nextLocation = {location[0]-1, location[1]};
-            if (board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
-                moves.add(nextLocation);
-                nextLocation = new int[] {location[0]-2, location[1]};
-                if (location[0] == 6 && board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
-                    moves.add(nextLocation);
-                }
-            }
-
-            int[][] attackLocations = {
+        int[][] whiteAttackLocations = {
                 {location[0]-1, location[1]-1},
                 {location[0]-1, location[1]+1}
-            };
+        };
 
-            for (int[] attackLocation : attackLocations) {
-                if (board.validLocation(attackLocation) && !board.unoccupiedLocation(attackLocation)) {
-                    if (board.teamPieceAtLocation(enemy, attackLocation) != null) {
-                        threatening.add(board.teamPieceAtLocation(enemy, attackLocation));
-                    } else {
-                        defending.add(board.pieceAtLocation(attackLocation));
-                    }
-                }
-            }
-        } else {
-            int[] nextLocation = {location[0]+1, location[1]};
+        int[][] blackAttackLocations = {
+                {location[0]+1, location[1]-1},
+                {location[0]+1, location[1]+1}
+        };
+
+        for (int i = 0; i < 2; i++) {
+            int[] nextLocation = locationGenerator(1, i);
             if (board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
                 moves.add(nextLocation);
-                nextLocation = new int[] {location[0]+2, location[1]};
-                if (location[0] == 1 && board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
+                nextLocation = locationGenerator(2, i);
+                if (location[0] == (i == 0 ? 6 : 1) && board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
                     moves.add(nextLocation);
                 }
             }
-            
-            int[][] attackLocations = {
-                {location[0]+1, location[1]-1},
-                {location[0]+1, location[1]+1}
-            };
 
-            for (int[] attackLocation : attackLocations) {
-                if (board.validLocation(attackLocation) && !board.unoccupiedLocation(attackLocation)) {
-                    if (board.teamPieceAtLocation(enemy, attackLocation) != null) {
+            for (int[] attackLocation : (i == 0 ? whiteAttackLocations : blackAttackLocations)) {
+                if (board.validLocation(attackLocation)) {
+                    if (board.unoccupiedLocation(attackLocation)) {
+                        corners.add(attackLocation);
+                    } else if (board.teamPieceAtLocation(enemy, attackLocation) != null) {
                         threatening.add(board.teamPieceAtLocation(enemy, attackLocation));
-                    } else {
+                    } else if (!(board.pieceAtLocation(attackLocation) instanceof King)){
                         defending.add(board.pieceAtLocation(attackLocation));
                     }
                 }

@@ -34,7 +34,7 @@ public class Knight extends Piece {
                     moves.add(nextLocation);
                 } else if (board.teamPieceAtLocation(enemy, nextLocation) != null) {
                     threatening.add(board.teamPieceAtLocation(enemy, nextLocation));
-                } else {
+                } else if (!(board.pieceAtLocation(nextLocation) instanceof King)){
                     defending.add(board.pieceAtLocation(nextLocation));
                 }
             }

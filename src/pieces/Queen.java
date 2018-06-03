@@ -29,8 +29,21 @@ public class Queen extends Piece {
             }
             if (board.validLocation(nextLocation)) {
                 if (board.teamPieceAtLocation(enemy, nextLocation) != null) {
-                    threatening.add(board.teamPieceAtLocation(enemy, nextLocation));
-                } else {
+                    Piece enemyPiece = board.teamPieceAtLocation(enemy, nextLocation);
+                    threatening.add(enemyPiece);
+                    if (enemyPiece instanceof King) {
+                        i++;
+                        nextLocation = locationGenerator(i, direction);
+                        if (board.validLocation(nextLocation)) {
+                            if (board.teamPieceAtLocation(team, nextLocation) != null) {
+                                defending.add(board.teamPieceAtLocation(team, nextLocation));
+                                //board.teamPieceAtLocation(team, nextLocation).defendedBy.add(this);
+                            } else if (board.teamPieceAtLocation(enemy, nextLocation) == null) {
+                                moves.add(nextLocation);
+                            }
+                        }
+                    }
+                } else if (!(board.pieceAtLocation(nextLocation) instanceof King)) {
                     defending.add(board.pieceAtLocation(nextLocation));
                 }
             }

@@ -1,6 +1,8 @@
 package game;
 
 import pieces.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
@@ -23,6 +25,9 @@ public class Game {
     }
 
     public void kill(Piece attacker, Piece victim) {
+        if (victim instanceof King) {
+            System.out.println("KILLING KING");
+        }
         board.move(attacker, victim.getLocation());
         pieces.deletePiece(victim);
     }
@@ -32,21 +37,18 @@ public class Game {
 
         if (check) {
             Piece king = pieces.getKingOfTeam(turn);
-            DecisionMaker.checkResolution(king, this);
-            if (check) {
-                System.out.println("GG");
+            if (!DecisionMaker.checkResolution(king, this)) {
+                System.out.println("GG! " + (turn.equals("W") ? "B" : "W") + " wins!");
+                System.exit(0);
+            } else {
+                check = false;
             }
         } else {
             List<Piece> currentTurnPieces = pieces.getPiecesBelongingToTeam(turn);
             DecisionMaker.makeMove(currentTurnPieces, this);
             pieces.calculate();
 
-            for (Piece piece : currentTurnPieces) {
-                if (piece.threatening.contains(pieces.getKingOfTeam(turn.equals("W") ? "B" : "W"))) {
-                    System.out.println("CHECK!");
-                    check = true;
-                }
-            }
+            check = DecisionMaker.checkDetection(pieces.getKingOfTeam(turn.equals("W") ? "B" : "W"), currentTurnPieces);
         }
         turn = turn == "W" ? "B" : "W";
 
