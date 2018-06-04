@@ -1,7 +1,6 @@
 package pieces;
 
 import game.*;
-import java.util.List;
 
 public class Knight extends PointThreatPiece {
 
@@ -13,7 +12,7 @@ public class Knight extends PointThreatPiece {
         board.move(this, location);
     }
 
-    public List<int[]> calculateMoves() {
+    public void calculateMoves() {
         clearPostures();
     
         int[][] nextLocations = {
@@ -38,7 +37,5 @@ public class Knight extends PointThreatPiece {
                 }
             }
         }
-
-        return moves;
     }
 }

@@ -11,6 +11,7 @@ public abstract class Piece {
     int[] location;
     String team;
     String enemy;
+    public boolean movedThisTurn;
 
     public List<int[]> moves;
     public List<Piece> threatening;
@@ -22,7 +23,7 @@ public abstract class Piece {
 
     public Board board;
 
-    public abstract List<int[]> calculateMoves();
+    public abstract void calculateMoves();
 
     public static List<int[]> intersectLocationSets(List<int[]> currentMoves, List<int[]> acceptableMoves) {
         List<int[]> intersection = new ArrayList<>();
@@ -54,12 +55,22 @@ public abstract class Piece {
         for (Piece defendedPiece : defending) {
             defendedPiece.defendedBy.remove(this);
         }
+        if (this instanceof Pawn) {
+            ((Pawn) this).corners = new ArrayList<>();
+        }
         threatening = new ArrayList<>();
         defending = new ArrayList<>();
     }
 
     public String getSymbol() {
-        return team.equals("B") ? symbol.toUpperCase() : symbol;
+        String formattedSymbol = team.equals("B") ? symbol.toUpperCase() : symbol;
+        if (formattedSymbol.length() == 2) {
+            formattedSymbol += (movedThisTurn ? "." : " ");
+        } else {
+            formattedSymbol += (movedThisTurn ? ". " : "  ");
+        }
+
+        return formattedSymbol;
     }
 
     public String getTeam() {

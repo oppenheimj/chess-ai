@@ -68,6 +68,14 @@ public class Pieces {
         correctionAlgorithm();
     }
 
+    public void resetMovedThisTurnFlags() {
+        for (List<Piece> pieceSet : pieceSets) {
+            for (Piece piece : pieceSet) {
+                piece.movedThisTurn = false;
+            }
+        }
+    }
+
     private void calculateMovesThreateningDefending() {
         for (List<Piece> pieceSet : pieceSets) {
             for (Piece piece : pieceSet) {

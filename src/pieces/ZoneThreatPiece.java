@@ -7,7 +7,7 @@ public abstract class ZoneThreatPiece extends Piece {
 
     int NUMBER_OF_ZONES;
 
-    public List<int[]> calculateMoves() {
+    public void calculateMoves() {
         clearPostures();
 
         for (int direction = 0; direction < NUMBER_OF_ZONES; direction++) {
@@ -41,8 +41,6 @@ public abstract class ZoneThreatPiece extends Piece {
                 }
             }
         }
-
-        return moves;
     }
 
     abstract int[] locationGenerator(int space, int index);

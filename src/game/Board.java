@@ -17,6 +17,7 @@ public class Board {
         board[oldLocation[0]][oldLocation[1]] = null;
         board[newLocation[0]][newLocation[1]] = piece;
         piece.setLocation(newLocation);
+        piece.movedThisTurn = true;
     }
 
     public boolean locationInBounds(int[] location) {
@@ -45,11 +46,7 @@ public class Board {
         StringBuilder sb = new StringBuilder();
         for (Piece[] row : board) {
             for (Piece piece : row) {
-                if (piece != null) {
-                    sb.append(piece.getSymbol() + (piece.getSymbol().length() == 2 ? " " : "  "));
-                } else {
-                    sb.append("   ");
-                }
+                sb.append(piece == null ? "   " : piece.getSymbol());
             }
             sb.append("\n");
         }

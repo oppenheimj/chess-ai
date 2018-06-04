@@ -20,7 +20,7 @@ public class King extends PointThreatPiece {
         board.move(this, location);
     }
 
-    public List<int[]> calculateMoves() {
+    public void calculateMoves() {
         clearPostures();
 
         int[][] nextLocations = {
@@ -45,7 +45,6 @@ public class King extends PointThreatPiece {
                 }
             }
         }
-        return moves;
     }
 
     public void correctKingPosture() {
@@ -69,7 +68,7 @@ public class King extends PointThreatPiece {
         threatening.removeAll(threateningToRemove);
     }
 
-    public boolean cancelSpaceWithOtherKing(int[] space) {
+    private boolean cancelSpaceWithOtherKing(int[] space) {
         Piece enemyKing = pieces.getKingOfTeam(enemy);
         List<int[]> moves = enemyKing.moves;
         for (int[] move : moves) {
@@ -81,7 +80,7 @@ public class King extends PointThreatPiece {
         return false;
     }
 
-    public boolean validSpaceForKing(int[] space) {
+    private boolean validSpaceForKing(int[] space) {
         List<Piece> enemyPieces = pieces.getPiecesBelongingToTeam(enemy);
         for (Piece enemyPiece : enemyPieces) {
             List<int[]> moves = enemyPiece instanceof Pawn ? ((Pawn) enemyPiece).corners : enemyPiece.moves;

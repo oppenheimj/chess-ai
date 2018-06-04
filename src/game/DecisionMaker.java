@@ -2,23 +2,32 @@ package game;
 
 import pieces.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 class DecisionMaker  {
     private static Random rand = new Random();
 
-    static boolean checkResolution(Piece king, Game game, Piece checker) {
+    static boolean checkResolution(Piece king, Game game, List<Piece> checkers) {
         Board board = game.board;
-        if (!checker.threatenedBy.isEmpty()) {
-            game.kill(checker.threatenedBy.get(0), checker);
-            return true;
-        } else if (!king.moves.isEmpty()) {
-            board.move(king, king.moves.get(0));
-            return true;
+        if (checkers.size() > 1) {
+            if (!king.moves.isEmpty()) {
+                board.move(king, king.moves.get(0));
+            }
+            return !king.moves.isEmpty();
         } else {
-            return (checker instanceof Queen || checker instanceof Rook || checker instanceof Bishop) &&
-                    checkForBlock(game, king, checker);
+            Piece soleChecker = checkers.get(0);
+            if (!soleChecker.threatenedBy.isEmpty()) {
+                game.kill(soleChecker.threatenedBy.get(0), soleChecker);
+                return true;
+            } else if (!king.moves.isEmpty()) {
+                board.move(king, king.moves.get(0));
+                return true;
+            } else {
+                return (soleChecker instanceof Queen || soleChecker instanceof Rook || soleChecker instanceof Bishop) &&
+                        checkForBlock(game, king, soleChecker);
+            }
         }
     }
 
@@ -37,16 +46,15 @@ class DecisionMaker  {
         return canBlock;
     }
 
-    static Piece checkDetection(Piece king, List<Piece> otherTeamsPieces) {
-        Piece checker = null;
+    static List<Piece> checkDetection(Piece king, List<Piece> otherTeamsPieces) {
+        List<Piece> checkers = new ArrayList<>();
         for (Piece piece : otherTeamsPieces) {
             if (piece.threatening.contains(king)) {
-                checker = piece;
-                break;
+                checkers.add(piece);
             }
         }
 
-        return checker;
+        return checkers;
     }
 
     static void makeMove(List<Piece> pieceSet, Game game) {

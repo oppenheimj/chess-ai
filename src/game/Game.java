@@ -11,7 +11,7 @@ public class Game {
 
     private String turn = "W";
     private Boolean check = false;
-    private Piece checker = null;
+    private List<Piece> checkers = null;
     private List<String> states = new ArrayList<>();
 
     public Game() {
@@ -25,7 +25,7 @@ public class Game {
         pieces = otherGame.pieces;
         turn = otherGame.turn;
         check = otherGame.check;
-        checker = otherGame.checker;
+        checkers = otherGame.checkers;
         states = otherGame.states;
     }
 
@@ -34,16 +34,21 @@ public class Game {
         if (victim instanceof King) {
             displayLastStates();
             System.out.println("ERROR: KILLING KING");
+            System.exit(0);
         }
         board.move(attacker, victim.getLocation());
         pieces.deletePiece(victim);
+        attacker.movedThisTurn = true;
     }
 
     public void nextState(Boolean showResult) {
+        pieces.resetMovedThisTurnFlags();
         List<Piece> currentTurnPieces = pieces.getPiecesBelongingToTeam(turn);
+
         if (check) {
+            pieces.calculate();
             Piece king = pieces.getKingOfTeam(turn);
-            if (!DecisionMaker.checkResolution(king, this, checker)) {
+            if (!DecisionMaker.checkResolution(king, this, checkers)) {
                 displayLastStates();
                 System.out.println("GG! " + (turn.equals("W") ? "B" : "W") + " wins!");
                 System.exit(0);
@@ -66,13 +71,13 @@ public class Game {
     }
 
     private void updateCheckState(List<Piece> currentTurnPieces) {
-        checker = DecisionMaker.checkDetection(pieces.getKingOfTeam(turn.equals("W") ? "B" : "W"), currentTurnPieces);
-        check = checker != null;
+        checkers = DecisionMaker.checkDetection(pieces.getKingOfTeam(turn.equals("W") ? "B" : "W"), currentTurnPieces);
+        check = !checkers.isEmpty();
     }
 
     private void displayLastStates() {
         //TODO will break if game was absurdly short
-        for (int i = states.size()-4; i < states.size(); i++) {
+        for (int i = states.size()-6; i < states.size(); i++) {
             System.out.println(states.get(i) + "\n**********************\n");
         }
     }

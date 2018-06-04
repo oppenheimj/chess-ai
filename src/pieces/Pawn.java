@@ -24,7 +24,7 @@ public class Pawn extends PointThreatPiece {
         return nextLocations[index];
     }
 
-    public List<int[]> calculateMoves() {
+    public void calculateMoves() {
         clearPostures();
         corners = new ArrayList<>();
 
@@ -38,30 +38,30 @@ public class Pawn extends PointThreatPiece {
                 {location[0]+1, location[1]+1}
         };
 
-        for (int i = 0; i < 2; i++) {
-            int[] nextLocation = locationGenerator(1, i);
-            if (board.locationInBounds(nextLocation) && board.unoccupiedLocation(nextLocation)) {
-                moves.add(nextLocation);
-                nextLocation = locationGenerator(2, i);
-                if ((location[0] == (i == 0 ? 6 : 1)) && board.locationInBounds(nextLocation) && board.unoccupiedLocation(nextLocation)) {
-                    moves.add(nextLocation);
-                }
-            }
+        int color = team.equals("W") ? 0 : 1;
+        int[] nextLocation = locationGenerator(1, color);
+        if (board.locationInBounds(nextLocation) && board.unoccupiedLocation(nextLocation)) {
+            moves.add(nextLocation);
 
-            int[][] attackLocations = (i == 0 ? whiteAttackLocations : blackAttackLocations);
-            for (int[] attackLocation : attackLocations) {
-                if (board.locationInBounds(attackLocation)) {
-                    if (board.unoccupiedLocation(attackLocation)) {
-                        corners.add(attackLocation);
-                    } else if (board.teamPieceAtLocation(enemy, attackLocation) != null) {
-                        threatening.add(board.teamPieceAtLocation(enemy, attackLocation));
-                    } else if (!(board.anyPieceAtLocation(attackLocation) instanceof King)){
-                        defending.add(board.anyPieceAtLocation(attackLocation));
-                    }
+            if ((location[0] == (color == 0 ? 6 : 1))) {
+                nextLocation = locationGenerator(2, color);
+                if (board.unoccupiedLocation(nextLocation)) {
+                    moves.add(nextLocation);
                 }
             }
         }
 
-        return moves;
+        int[][] attackLocations = (color == 0 ? whiteAttackLocations : blackAttackLocations);
+        for (int[] attackLocation : attackLocations) {
+            if (board.locationInBounds(attackLocation)) {
+                if (board.unoccupiedLocation(attackLocation)) {
+                    corners.add(attackLocation);
+                } else if (board.teamPieceAtLocation(enemy, attackLocation) != null) {
+                    threatening.add(board.teamPieceAtLocation(enemy, attackLocation));
+                } else if (!(board.anyPieceAtLocation(attackLocation) instanceof King)){
+                    defending.add(board.anyPieceAtLocation(attackLocation));
+                }
+            }
+        }
     }
 }

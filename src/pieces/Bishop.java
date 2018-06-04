@@ -1,8 +1,6 @@
 package pieces;
 
 import game.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Bishop extends ZoneThreatPiece {
 
