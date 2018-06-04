@@ -40,22 +40,23 @@ public class Pawn extends Piece {
 
         for (int i = 0; i < 2; i++) {
             int[] nextLocation = locationGenerator(1, i);
-            if (board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
+            if (board.locationInBounds(nextLocation) && board.unoccupiedLocation(nextLocation)) {
                 moves.add(nextLocation);
                 nextLocation = locationGenerator(2, i);
-                if (location[0] == (i == 0 ? 6 : 1) && board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
+                if ((location[0] == (i == 0 ? 6 : 1)) && board.locationInBounds(nextLocation) && board.unoccupiedLocation(nextLocation)) {
                     moves.add(nextLocation);
                 }
             }
 
-            for (int[] attackLocation : (i == 0 ? whiteAttackLocations : blackAttackLocations)) {
-                if (board.validLocation(attackLocation)) {
+            int[][] attackLocations = (i == 0 ? whiteAttackLocations : blackAttackLocations);
+            for (int[] attackLocation : attackLocations) {
+                if (board.locationInBounds(attackLocation)) {
                     if (board.unoccupiedLocation(attackLocation)) {
                         corners.add(attackLocation);
                     } else if (board.teamPieceAtLocation(enemy, attackLocation) != null) {
                         threatening.add(board.teamPieceAtLocation(enemy, attackLocation));
-                    } else if (!(board.pieceAtLocation(attackLocation) instanceof King)){
-                        defending.add(board.pieceAtLocation(attackLocation));
+                    } else if (!(board.anyPieceAtLocation(attackLocation) instanceof King)){
+                        defending.add(board.anyPieceAtLocation(attackLocation));
                     }
                 }
             }

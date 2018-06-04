@@ -35,14 +35,14 @@ public class King extends Piece {
         };
 
         for (int[] nextLocation : nextLocations) {
-            if (board.validLocation(nextLocation)) {
+            if (board.locationInBounds(nextLocation)) {
                 if (board.unoccupiedLocation(nextLocation)) {
                     moves.add(nextLocation);
                 } else if (board.teamPieceAtLocation(enemy, nextLocation) != null) {
                     threatening.add(board.teamPieceAtLocation(enemy, nextLocation));
                 } else {
                     //TODO: Think through logic of when king can be said to be defending a given friendly.
-                    defending.add(board.pieceAtLocation(nextLocation));
+                    defending.add(board.anyPieceAtLocation(nextLocation));
                 }
             }
         }

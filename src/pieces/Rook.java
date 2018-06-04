@@ -23,13 +23,13 @@ public class Rook extends Piece {
             List<int[]> path = new ArrayList<>();
             int i = 1;
             int[] nextLocation = locationGenerator(i, direction);
-            while (board.validLocation(nextLocation) && board.unoccupiedLocation(nextLocation)) {
+            while (board.locationInBounds(nextLocation) && board.unoccupiedLocation(nextLocation)) {
                 path.add(nextLocation);
                 moves.add(nextLocation);
                 i++;
                 nextLocation = locationGenerator(i, direction);
             }
-            if (board.validLocation(nextLocation)) {
+            if (board.locationInBounds(nextLocation)) {
                 if (board.teamPieceAtLocation(enemy, nextLocation) != null) {
                     Piece enemyPiece = board.teamPieceAtLocation(enemy, nextLocation);
                     threatening.add(enemyPiece);
@@ -37,7 +37,7 @@ public class Rook extends Piece {
                         pathToEnemyKing = path;
                         i++;
                         nextLocation = locationGenerator(i, direction);
-                        if (board.validLocation(nextLocation)) {
+                        if (board.locationInBounds(nextLocation)) {
                             if (board.teamPieceAtLocation(team, nextLocation) != null) {
                                 defending.add(board.teamPieceAtLocation(team, nextLocation));
                             } else if (board.teamPieceAtLocation(enemy, nextLocation) == null) {
@@ -45,8 +45,8 @@ public class Rook extends Piece {
                             }
                         }
                     }
-                } else if (!(board.pieceAtLocation(nextLocation) instanceof King)) {
-                    defending.add(board.pieceAtLocation(nextLocation));
+                } else if (!(board.anyPieceAtLocation(nextLocation) instanceof King)) {
+                    defending.add(board.anyPieceAtLocation(nextLocation));
                 }
             }
         }

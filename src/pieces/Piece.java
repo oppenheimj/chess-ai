@@ -3,14 +3,14 @@ package pieces;
 import game.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class Piece {
-    protected String symbol;
-    protected int[] location;
-
-    protected String team;
-    protected String enemy;
+    String symbol;
+    int[] location;
+    String team;
+    String enemy;
 
     public List<int[]> moves;
     public List<Piece> threatening;
@@ -21,6 +21,19 @@ public abstract class Piece {
     public List<int[]> pathToEnemyKing;
 
     public Board board;
+
+    public static List<int[]> intersectLocationSets(List<int[]> currentMoves, List<int[]> acceptableMoves) {
+        List<int[]> intersection = new ArrayList<>();
+
+        for (int[] currentMove : currentMoves) {
+            for (int[] acceptableMove : acceptableMoves) {
+                if (Arrays.equals(currentMove, acceptableMove)) {
+                    intersection.add(currentMove);
+                }
+            }
+        }
+        return intersection;
+    }
 
     public abstract List<int[]> calculateMoves();
 

@@ -2,15 +2,14 @@ package game;
 
 import pieces.*;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
 public class Pieces {
-    public List<Piece> blackPieces = new ArrayList<>();
-    public List<Piece> whitePieces = new ArrayList<>();
-    public List<List> pieceSets = new ArrayList<>();
+    private List<Piece> blackPieces = new ArrayList<>();
+    private List<Piece> whitePieces = new ArrayList<>();
+    private List<List> pieceSets = new ArrayList<>();
 
     private Board board;
 
@@ -19,7 +18,49 @@ public class Pieces {
         initializePieces();
     }
 
-    public void calculate() {
+    public Pieces(Pieces pieces) {
+        blackPieces = pieces.blackPieces;
+        whitePieces = pieces.whitePieces;
+        pieceSets = pieces.pieceSets;
+    }
+
+    private List<King> getKings() {
+        List<King> kings = new ArrayList<>();
+
+        kings.add((King)getKingOfTeam("W"));
+        kings.add((King)getKingOfTeam("B"));
+
+        kings.removeAll(Collections.singleton(null));
+
+        return kings;
+    }
+
+
+    void deletePiece(Piece piece) {
+        if (piece.getTeam().equals("W")) {
+            whitePieces.remove(piece);
+        } else {
+            blackPieces.remove(piece);
+        }
+    }
+
+    public List<Piece> getPiecesBelongingToTeam(String team) {
+        return team.equals("W") ? whitePieces : blackPieces;
+    }
+
+    public Piece getKingOfTeam(String team) {
+        List<Piece> pieces = getPiecesBelongingToTeam(team);
+        Piece king = null;
+        for (Piece piece : pieces) {
+            if (piece instanceof King) {
+                king = piece;
+            }
+        }
+
+        return king;
+    }
+
+    void calculate() {
         calculateMovesThreateningDefending();
         calculateThreatenedByDefendedBy();
 
@@ -27,8 +68,40 @@ public class Pieces {
         correctionAlgorithm();
     }
 
+    private void calculateMovesThreateningDefending() {
+        for (List<Piece> pieceSet : pieceSets) {
+            for (Piece piece : pieceSet) {
+                piece.calculateMoves();
+            }
+        }
+    }
+
+    private void calculateThreatenedByDefendedBy() {
+        for (List<Piece> friendlies : pieceSets) {
+            for (Piece friendly : friendlies) {
+                if (!friendly.threatening.isEmpty()) {
+                    for (Piece enemy : friendly.threatening) {
+                        enemy.threatenedBy.add(friendly);
+                    }
+                }
+                if (!friendly.defending.isEmpty()) {
+                    for (Piece defendedFriendly : friendly.defending) {
+                        defendedFriendly.defendedBy.add(friendly);
+                    }
+                }
+            }
+        }
+    }
+
+    private void correctKingsPostures() {
+        List<King> kings = getKings();
+        for (King king : kings) {
+            king.correctKingPosture();
+        }
+    }
+
     //TODO rename this
-    public void correctionAlgorithm() {
+    private void correctionAlgorithm() {
         List<King> kings = getKings();
 
         for (King king : kings) {
@@ -40,8 +113,8 @@ public class Pieces {
                 List<int[]> locationsTraversed = new ArrayList<>();
                 for (int j = 1; j < board.BOARD_DIMENSION; j++) {
                     int[] nextLocation = locationGenerator(king, j, i);
-                    if (board.validLocation(nextLocation)) {
-                        Piece pieceAtLocation = board.pieceAtLocation(nextLocation);
+                    if (board.locationInBounds(nextLocation)) {
+                        Piece pieceAtLocation = board.anyPieceAtLocation(nextLocation);
                         if (pieceAtLocation != null) {
                             if (pieceAtLocation.getTeam().equals(king.getTeam())) {
                                 if (friendlySeen) {
@@ -66,7 +139,7 @@ public class Pieces {
                     }
                 }
                 if (friendlySeen && enemySeen) {
-                    friendly.moves = intersectLocationSets(friendly.moves, locationsTraversed);
+                    friendly.moves = Piece.intersectLocationSets(friendly.moves, locationsTraversed);
                     boolean threateningEnemy = friendly.threatening.contains(enemy);
                     friendly.undoPostures();
                     if (threateningEnemy) {
@@ -78,101 +151,21 @@ public class Pieces {
         }
     }
 
-    public static List<int[]> intersectLocationSets(List<int[]> currentMoves, List<int[]> acceptableMoves) {
-        List<int[]> intersection = new ArrayList<>();
-
-        for (int[] currentMove : currentMoves) {
-            for (int[] acceptableMove : acceptableMoves) {
-                if (Arrays.equals(currentMove, acceptableMove)) {
-                    intersection.add(currentMove);
-                }
-            }
-        }
-        return intersection;
-    }
-
-    public int[] locationGenerator(Piece piece, int i, int index) {
+    private int[] locationGenerator(Piece piece, int spaces, int index) {
         int[] location = piece.getLocation();
 
         int[][] nextLocations = {
-                {location[0]-i, location[1]},
-                {location[0], location[1]+i},
-                {location[0]+i, location[1]},
-                {location[0], location[1]-i},
-                {location[0]-i, location[1]+i},
-                {location[0]+i, location[1]+i},
-                {location[0]+i, location[1]-i},
-                {location[0]-i, location[1]-i}
+                {location[0]-spaces, location[1]},
+                {location[0], location[1]+spaces},
+                {location[0]+spaces, location[1]},
+                {location[0], location[1]-spaces},
+                {location[0]-spaces, location[1]+spaces},
+                {location[0]+spaces, location[1]+spaces},
+                {location[0]+spaces, location[1]-spaces},
+                {location[0]-spaces, location[1]-spaces}
         };
 
         return nextLocations[index];
-    }
-
-    public void calculateMovesThreateningDefending() {
-        for (List<Piece> pieceSet : pieceSets) {
-            for (Piece piece : pieceSet) {
-                piece.calculateMoves();
-            }
-        }
-    }
-
-    public void calculateThreatenedByDefendedBy() {
-        for (List<Piece> friendlies : pieceSets) {
-            for (Piece friendly : friendlies) {
-                if (!friendly.threatening.isEmpty()) {
-                    for (Piece enemy : friendly.threatening) {
-                        enemy.threatenedBy.add(friendly);
-                    }
-                }
-                if (!friendly.defending.isEmpty()) {
-                    for (Piece defendedFriendly : friendly.defending) {
-                        defendedFriendly.defendedBy.add(friendly);
-                    }
-                }
-            }
-        }
-    }
-
-    public List<King> getKings() {
-        List<King> kings = new ArrayList<>();
-
-        kings.add((King)getKingOfTeam("W"));
-        kings.add((King)getKingOfTeam("B"));
-
-        kings.removeAll(Collections.singleton(null));
-
-        return kings;
-    }
-
-
-    public void deletePiece(Piece piece) {
-        if (piece.getTeam().equals("W")) {
-            whitePieces.remove(piece);
-        } else {
-            blackPieces.remove(piece);
-        }
-    }
-
-    public List<Piece> getPiecesBelongingToTeam(String team) {
-        return team.equals("W") ? whitePieces : blackPieces;
-    }
-
-    public Piece getKingOfTeam(String team) {
-        List<Piece> pieces = getPiecesBelongingToTeam(team);
-        Piece king = null;
-        for (Piece piece : pieces) {
-            if (piece instanceof King) {
-                king = piece;
-            }
-        }
-        return king;
-    }
-
-    public void correctKingsPostures() {
-        List<King> kings = getKings();
-        for (King king : kings) {
-            king.correctKingPosture();
-        }
     }
 
     private void initializePieces() {
@@ -192,6 +185,7 @@ public class Pieces {
             int[] location = new int[]{row, i};
             pieces.add(new Pawn(board, team, location));
         }
+
         return pieces;
     }
 
@@ -219,6 +213,7 @@ public class Pieces {
                 }
             }
         }
+
         return pieces;
     }
 }

@@ -2,10 +2,11 @@ import game.*;
 
 public class Main {
     public static void main(String[] args) {
-        Game game = new Game();
-
-        for (int i = 0; i < 500; i++) {
-            game.nextState(true);
+        for (int j = 0; j < 1000; j++) {
+            Game game = new Game();
+            for (int i = 0; i < 250; i++) {
+                game.nextState(false);
+            }
         }
     }
 }
