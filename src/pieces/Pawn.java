@@ -4,8 +4,8 @@ import game.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Pawn extends Piece {
-    public List<int[]> corners;
+public class Pawn extends PointThreatPiece {
+    List<int[]> corners;
 
     public Pawn(Board board, String team, int[] location) {
         symbol = "p";
@@ -15,7 +15,7 @@ public class Pawn extends Piece {
         board.move(this, location);
     }
 
-    public int[] locationGenerator(int spaces, int index) {
+    private int[] locationGenerator(int spaces, int index) {
         int[][] nextLocations = {
                 {location[0]-spaces, location[1]},
                 {location[0]+spaces, location[1]},

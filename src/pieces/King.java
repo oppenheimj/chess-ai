@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
-public class King extends Piece {
+public class King extends PointThreatPiece {
 
     private Pieces pieces;
 
@@ -41,7 +41,6 @@ public class King extends Piece {
                 } else if (board.teamPieceAtLocation(enemy, nextLocation) != null) {
                     threatening.add(board.teamPieceAtLocation(enemy, nextLocation));
                 } else {
-                    //TODO: Think through logic of when king can be said to be defending a given friendly.
                     defending.add(board.anyPieceAtLocation(nextLocation));
                 }
             }

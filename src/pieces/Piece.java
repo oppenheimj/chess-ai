@@ -22,6 +22,8 @@ public abstract class Piece {
 
     public Board board;
 
+    public abstract List<int[]> calculateMoves();
+
     public static List<int[]> intersectLocationSets(List<int[]> currentMoves, List<int[]> acceptableMoves) {
         List<int[]> intersection = new ArrayList<>();
 
@@ -32,12 +34,11 @@ public abstract class Piece {
                 }
             }
         }
+
         return intersection;
     }
 
-    public abstract List<int[]> calculateMoves();
-
-    protected void clearPostures() {
+    void clearPostures() {
         moves = new ArrayList<>();
         threatening = new ArrayList<>();
         threatenedBy = new ArrayList<>();

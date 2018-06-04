@@ -3,7 +3,7 @@ package pieces;
 import game.*;
 import java.util.List;
 
-public class Knight extends Piece {
+public class Knight extends PointThreatPiece {
 
     public Knight(Board board, String team, int[] location) {
         symbol = "kn";
