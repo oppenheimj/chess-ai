@@ -12,6 +12,11 @@ public class Knight extends PointThreatPiece {
         board.move(this, location);
     }
 
+    public Knight clone(Board board) {
+        int[] newLocation = new int[]{location[0], location[1]};
+        return new Knight(board, team, newLocation);
+    }
+
     public void calculateMoves() {
         clearPostures();
     

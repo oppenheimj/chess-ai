@@ -39,6 +39,8 @@ public abstract class Piece {
         return intersection;
     }
 
+    public abstract Piece clone(Board board);
+
     void clearPostures() {
         moves = new ArrayList<>();
         threatening = new ArrayList<>();

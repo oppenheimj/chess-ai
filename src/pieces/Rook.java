@@ -15,6 +15,11 @@ public class Rook extends ZoneThreatPiece {
         board.move(this, location);
     }
 
+    public Rook clone(Board board) {
+        int[] newLocation = new int[]{location[0], location[1]};
+        return new Rook(board, team, newLocation);
+    }
+
     public int[] locationGenerator(int spaces, int index) {
         int[][] nextLocations = {
             {location[0]-spaces, location[1]},

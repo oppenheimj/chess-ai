@@ -18,11 +18,30 @@ public class Pieces {
         initializePieces();
     }
 
-    public Pieces(Pieces pieces) {
-        blackPieces = pieces.blackPieces;
-        whitePieces = pieces.whitePieces;
-        pieceSets = pieces.pieceSets;
+    public Pieces(List<Piece> newBlackPieces, List<Piece> newWhitePieces, Board board) {
+        blackPieces = newBlackPieces;
+        whitePieces = newWhitePieces;
+        this.board = board;
+
+        pieceSets.add(blackPieces);
+        pieceSets.add(whitePieces);
     }
+
+    public Pieces clone(Board board) {
+        List<Piece> newBlackPieces = new ArrayList<>();
+        List<Piece> newWhitePieces = new ArrayList<>();
+
+        for (Piece piece : blackPieces) {
+            newBlackPieces.add(piece.clone(board));
+        }
+        for (Piece piece : whitePieces) {
+            newWhitePieces.add(piece.clone(board));
+        }
+
+        return new Pieces(newBlackPieces, newWhitePieces, board);
+    }
+
+
 
     private List<King> getKings() {
         List<King> kings = new ArrayList<>();
@@ -104,7 +123,7 @@ public class Pieces {
     private void correctKingsPostures() {
         List<King> kings = getKings();
         for (King king : kings) {
-            king.correctKingPosture();
+            king.correctKingPosture(this);
         }
     }
 
@@ -211,11 +230,11 @@ public class Pieces {
                 if (team.equals("W")) {
                     pieces.add(new Queen(board, team, location));
                 } else {
-                    pieces.add(new King(board, team, location, this));
+                    pieces.add(new King(board, team, location));
                 }
             } else {
                 if (team.equals("W")) {
-                    pieces.add(new King(board, team, location, this));
+                    pieces.add(new King(board, team, location));
                 } else {
                     pieces.add(new Queen(board, team, location));
                 }

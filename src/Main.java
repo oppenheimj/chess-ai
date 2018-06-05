@@ -1,12 +1,21 @@
 import game.*;
 
+import java.util.List;
+
 public class Main {
     public static void main(String[] args) {
-        for (int j = 0; j < 100000; j++) {
-            Game game = new Game();
-            for (int i = 0; i < 10; i++) {
-                game.nextState(false);
-            }
+        Game game = new Game();
+        game.calculateFutureStates();
+        List<Game> futureStates = game.getFutureStates();
+        game.displayFutureStates();
+        int numGames = 0;
+
+        for (Game nextGame : futureStates) {
+            nextGame.calculateFutureStates();
+            numGames += nextGame.getFutureStates().size();
+            nextGame.displayFutureStates();
         }
+        System.out.println("num games: " + numGames);
+
     }
 }

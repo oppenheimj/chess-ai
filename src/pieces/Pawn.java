@@ -15,6 +15,11 @@ public class Pawn extends PointThreatPiece {
         board.move(this, location);
     }
 
+    public Pawn clone(Board board) {
+        int[] newLocation = location; //new int// []{location[0], location[1]};
+        return new Pawn(board, team, newLocation);
+    }
+
     private int[] locationGenerator(int spaces, int index) {
         int[][] nextLocations = {
                 {location[0]-spaces, location[1]},

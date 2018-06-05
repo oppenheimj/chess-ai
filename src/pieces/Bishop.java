@@ -12,7 +12,12 @@ public class Bishop extends ZoneThreatPiece {
         this.location = location;
 
         setTeam(team);
-        board.move(this, location);;
+        board.move(this, location);
+    }
+
+    public Bishop clone(Board board) {
+        int[] newLocation = new int[]{location[0], location[1]};
+        return new Bishop(board, team, newLocation);
     }
 
     public int[] locationGenerator(int spaces, int index) {

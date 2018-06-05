@@ -16,8 +16,6 @@ public class Board {
         int[] oldLocation = piece.getLocation();
         board[oldLocation[0]][oldLocation[1]] = null;
         board[newLocation[0]][newLocation[1]] = piece;
-        piece.setLocation(newLocation);
-        piece.movedThisTurn = true;
     }
 
     public boolean locationInBounds(int[] location) {
