@@ -101,7 +101,6 @@ public class Game {
     public List<Game> regularMoveStates()  {
         List<Piece> currentTurnPieces = pieces.getPiecesBelongingToTeam(turn);
         List<Game> nextStates = DecisionMaker.makeMoves(currentTurnPieces, this);
-        System.out.println(nextStates.size());
 
         return nextStates;
 

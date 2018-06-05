@@ -1,21 +1,30 @@
 import game.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        Game game = new Game();
-        game.calculateFutureStates();
-        List<Game> futureStates = game.getFutureStates();
-        game.displayFutureStates();
-        int numGames = 0;
+        List<Game> previousStates = new ArrayList<>();
+        previousStates.add(new Game());
 
-        for (Game nextGame : futureStates) {
-            nextGame.calculateFutureStates();
-            numGames += nextGame.getFutureStates().size();
-            nextGame.displayFutureStates();
+        List<Game> nextFutureStates = new ArrayList<>();
+
+        int depth = 4;
+        long numGames = 0;
+
+        for (int i = 0; i < depth; i++) {
+            for (Game previousState : previousStates) {
+                previousState.calculateFutureStates();
+                nextFutureStates.addAll(previousState.getFutureStates());
+            }
+            previousStates.clear();
+            previousStates.addAll(nextFutureStates);
+
+            numGames = nextFutureStates.size();
+            nextFutureStates.clear();
+
         }
-        System.out.println("num games: " + numGames);
-
+        System.out.println(numGames);
     }
 }
