@@ -11,6 +11,7 @@ public abstract class Piece {
     int[] location;
     String team;
     String enemy;
+    int value;
     public boolean movedThisTurn;
 
     public List<int[]> moves;
@@ -94,5 +95,9 @@ public abstract class Piece {
 
     public void setLocation(int[] newLocation) {
         location = newLocation;
+    }
+
+    public int getValue() {
+        return value;
     }
 }

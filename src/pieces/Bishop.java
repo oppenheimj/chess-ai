@@ -6,6 +6,7 @@ public class Bishop extends ZoneThreatPiece {
 
     public Bishop(Board board, String team, int[] location) {
         symbol = "b";
+        value = 3;
         NUMBER_OF_ZONES = 4;
 
         this.board = board;

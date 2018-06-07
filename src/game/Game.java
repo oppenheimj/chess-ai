@@ -16,6 +16,8 @@ public class Game {
     private List<Game> futureStates = new ArrayList<>();
     boolean terminal = false;
     private Game previousState = null;
+    float value;
+    float percolatedValue = 0;
 
     public Game() {
         board = new Board();
@@ -26,7 +28,7 @@ public class Game {
     public Game(Game otherGame, Piece pieceToMove, int[] targetLocation) {
         board = new Board();
         pieces = otherGame.pieces.clone(board);
-        turn = otherGame.turn == "W" ? "W" : "B";
+        turn = otherGame.turn;
         check = otherGame.check;
         checkers = otherGame.checkers;
         states = otherGame.states;
@@ -41,13 +43,19 @@ public class Game {
         } else {
             kill(targetPiece, board.anyPieceAtLocation(targetLocation));
         }
+        if (pieces.numberOfPieces() == 2) {
+            terminal = true;
+        }
 
-        turn = turn == "W" ? "B" : "W";
+
 
         states.add(board.getState());
         pieces.calculate();
+
+        turn = turn.equals("W") ? "B" : "W";
         List<Piece> currentTurnPieces = pieces.getPiecesBelongingToTeam(turn);
         updateCheckState(currentTurnPieces);
+        value = pieces.getValue(turn);
     }
 
     public void calculateFutureStates() {
@@ -103,7 +111,49 @@ public class Game {
         List<Game> nextStates = DecisionMaker.makeMoves(currentTurnPieces, this);
 
         return nextStates;
+    }
 
+    public Game getNextState() {
+        recursiveMethod(this);
+        float maxValue = maxValueFromStates(getFutureStates());
+
+        for (Game game : getFutureStates()) {
+            if (game.value == maxValue) {
+                return game;
+            }
+        }
+        return null;
+    }
+
+    public float recursiveMethod(List<Game> futureStates) {
+        //NEED TO HANDLE CHECKMATE AND DRAW
+        System.out.println("Num Future States: " + game.getFutureStates().size());
+        if (futureStates.isEmpty()) {
+            System.out.println("Value: " + value);
+            return value;
+        } else {
+            return minValueFromStates(getFutureStates());
+        }
+    }
+
+    public static float minValueFromStates(List<Game> games) {
+        float min = 0;
+        for (Game game : games) {
+            if (game.value < min) {
+                min = game.value;
+            }
+        }
+        return min;
+    }
+
+    public static float maxValueFromStates(List<Game> games) {
+        float max = 0;
+        for (Game game : games) {
+            if (game.value > max) {
+                max = game.value;
+            }
+        }
+        return max;
     }
 
     public void nextState(Boolean showResult) {
@@ -126,7 +176,7 @@ public class Game {
             updateCheckState(currentTurnPieces);
         }
 
-        turn = turn == "W" ? "B" : "W";
+        turn = turn.equals("W") ? "B" : "W";
         states.add(board.getState());
 
         if (showResult) {

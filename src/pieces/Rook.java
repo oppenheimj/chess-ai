@@ -6,6 +6,7 @@ public class Rook extends ZoneThreatPiece {
 
     public Rook(Board board, String team, int[] location) {
         symbol = "r";
+        value = 5;
         NUMBER_OF_ZONES = 4;
 
         this.board = board;

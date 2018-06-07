@@ -9,6 +9,7 @@ public class Pawn extends PointThreatPiece {
 
     public Pawn(Board board, String team, int[] location) {
         symbol = "p";
+        value = 1;
         this.board = board;
         this.location = location;
         setTeam(team);

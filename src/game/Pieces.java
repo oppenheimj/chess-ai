@@ -41,7 +41,9 @@ public class Pieces {
         return new Pieces(newBlackPieces, newWhitePieces, board);
     }
 
-
+    public int numberOfPieces() {
+        return blackPieces.size() + whitePieces.size();
+    }
 
     private List<King> getKings() {
         List<King> kings = new ArrayList<>();
@@ -242,5 +244,19 @@ public class Pieces {
         }
 
         return pieces;
+    }
+
+    public float getValue(String team) {
+        String otherTeam = team.equals("W") ? "B" : "W";
+        return (float)getTeamValue(team) / getTeamValue(otherTeam);
+    }
+
+    private int getTeamValue(String team) {
+        int totalValue = 0;
+        List<Piece> teamPieces = getPiecesBelongingToTeam(team);
+        for (Piece piece : teamPieces) {
+            totalValue += piece.getValue();
+        }
+        return totalValue;
     }
 }

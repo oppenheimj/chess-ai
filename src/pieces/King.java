@@ -10,6 +10,7 @@ public class King extends PointThreatPiece {
 
     public King(Board board, String team, int[] location) {
         symbol = "ki";
+        value = 0;
         this.board = board;
         this.location = location;
         setTeam(team);
