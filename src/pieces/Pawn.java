@@ -17,7 +17,7 @@ public class Pawn extends PointThreatPiece {
     }
 
     public Pawn clone(Board board) {
-        int[] newLocation = location; //new int// []{location[0], location[1]};
+        int[] newLocation = location.clone();
         return new Pawn(board, team, newLocation);
     }
 
@@ -58,6 +58,7 @@ public class Pawn extends PointThreatPiece {
         }
 
         int[][] attackLocations = (color == 0 ? whiteAttackLocations : blackAttackLocations);
+
         for (int[] attackLocation : attackLocations) {
             if (board.locationInBounds(attackLocation)) {
                 if (board.unoccupiedLocation(attackLocation)) {

@@ -17,7 +17,7 @@ public class Bishop extends ZoneThreatPiece {
     }
 
     public Bishop clone(Board board) {
-        int[] newLocation = new int[]{location[0], location[1]};
+        int[] newLocation = location.clone();
         return new Bishop(board, team, newLocation);
     }
 

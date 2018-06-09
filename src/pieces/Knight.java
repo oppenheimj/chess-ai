@@ -14,7 +14,7 @@ public class Knight extends PointThreatPiece {
     }
 
     public Knight clone(Board board) {
-        int[] newLocation = new int[]{location[0], location[1]};
+        int[] newLocation = location.clone();
         return new Knight(board, team, newLocation);
     }
 

@@ -27,7 +27,7 @@ public class Pieces {
         pieceSets.add(whitePieces);
     }
 
-    public Pieces clone(Board board) {
+    Pieces clone(Board board) {
         List<Piece> newBlackPieces = new ArrayList<>();
         List<Piece> newWhitePieces = new ArrayList<>();
 
@@ -39,30 +39,6 @@ public class Pieces {
         }
 
         return new Pieces(newBlackPieces, newWhitePieces, board);
-    }
-
-    public int numberOfPieces() {
-        return blackPieces.size() + whitePieces.size();
-    }
-
-    private List<King> getKings() {
-        List<King> kings = new ArrayList<>();
-
-        kings.add((King)getKingOfTeam("W"));
-        kings.add((King)getKingOfTeam("B"));
-
-        kings.removeAll(Collections.singleton(null));
-
-        return kings;
-    }
-
-
-    void deletePiece(Piece piece) {
-        if (piece.getTeam().equals("W")) {
-            whitePieces.remove(piece);
-        } else {
-            blackPieces.remove(piece);
-        }
     }
 
     public List<Piece> getPiecesBelongingToTeam(String team) {
@@ -81,6 +57,43 @@ public class Pieces {
         return king;
     }
 
+    private List<King> getKings() {
+        List<King> kings = new ArrayList<>();
+
+        kings.add((King)getKingOfTeam("W"));
+        kings.add((King)getKingOfTeam("B"));
+
+        kings.removeAll(Collections.singleton(null));
+
+        return kings;
+    }
+
+    void deletePiece(Piece piece) {
+        if (piece.getTeam().equals("W")) {
+            whitePieces.remove(piece);
+        } else {
+            blackPieces.remove(piece);
+        }
+    }
+
+    int numberOfPieces() {
+        return blackPieces.size() + whitePieces.size();
+    }
+
+    float getValue(String team) {
+        String otherTeam = team.equals("W") ? "B" : "W";
+        return (float)getTeamValue(team) / getTeamValue(otherTeam);
+    }
+
+    private int getTeamValue(String team) {
+        int totalValue = 0;
+        List<Piece> teamPieces = getPiecesBelongingToTeam(team);
+        for (Piece piece : teamPieces) {
+            totalValue += piece.getValue();
+        }
+        return totalValue;
+    }
+
     void calculate() {
         calculateMovesThreateningDefending();
         calculateThreatenedByDefendedBy();
@@ -89,7 +102,7 @@ public class Pieces {
         correctionAlgorithm();
     }
 
-    public void resetMovedThisTurnFlags() {
+    void resetMovedThisTurnFlags() {
         for (List<Piece> pieceSet : pieceSets) {
             for (Piece piece : pieceSet) {
                 piece.movedThisTurn = false;
@@ -244,19 +257,5 @@ public class Pieces {
         }
 
         return pieces;
-    }
-
-    public float getValue(String team) {
-        String otherTeam = team.equals("W") ? "B" : "W";
-        return (float)getTeamValue(team) / getTeamValue(otherTeam);
-    }
-
-    private int getTeamValue(String team) {
-        int totalValue = 0;
-        List<Piece> teamPieces = getPiecesBelongingToTeam(team);
-        for (Piece piece : teamPieces) {
-            totalValue += piece.getValue();
-        }
-        return totalValue;
     }
 }

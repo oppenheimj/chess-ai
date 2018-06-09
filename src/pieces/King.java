@@ -19,7 +19,7 @@ public class King extends PointThreatPiece {
     }
 
     public King clone(Board board) {
-        int[] newLocation = new int[]{location[0], location[1]};
+        int[] newLocation = location.clone();
         return new King(board, team, newLocation);
     }
 

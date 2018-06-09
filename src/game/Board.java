@@ -40,7 +40,7 @@ public class Board {
         System.out.println(getState());
     }
 
-    public String getState() {
+    String getState() {
         StringBuilder sb = new StringBuilder();
         for (Piece[] row : board) {
             for (Piece piece : row) {

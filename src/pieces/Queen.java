@@ -17,7 +17,7 @@ public class Queen extends ZoneThreatPiece {
     }
 
     public Queen clone(Board board) {
-        int[] newLocation = new int[]{location[0], location[1]};
+        int[] newLocation = location.clone();
         return new Queen(board, team, newLocation);
     }
 

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class DecisionMaker  {
+class DecisionMaker  {
     private static Random rand = new Random();
 
     static List<Game> checkResolutions(Piece king, Game game, List<Piece> checkers) {
