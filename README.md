@@ -16,7 +16,7 @@ The long term objective of this project is to use the ideas from [reinforcement 
 │  └── production
 │     └── reinforcement-learning-chess
 │        ├── Main.class
-│        ├── game
+│        ├── state
 │        │  ├── Board.class
 │        │  ├── DecisionMaker.class
 │        │  ├── Game.class
@@ -32,7 +32,7 @@ The long term objective of this project is to use the ideas from [reinforcement 
 │           └── Rook.class
 └── src
    ├── Main.java
-   ├── game
+   ├── state
    │  ├── Board.java
    │  ├── DecisionMaker.java
    │  ├── Game.java

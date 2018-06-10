@@ -9,34 +9,34 @@ import java.util.Random;
 class DecisionMaker  {
     private static Random rand = new Random();
 
-    static List<Game> checkResolutions(Piece king, Game game, List<Piece> checkers) {
-        List<Game> futureStates = new ArrayList<>();
+    static List<State> checkResolutions(Piece king, State state, List<Piece> checkers) {
+        List<State> futureStates = new ArrayList<>();
         if (checkers.size() > 1) {
             if (!king.moves.isEmpty()) {
                 for (int[] move : king.moves) {
-                    futureStates.add(new Game(game, king, move));
+                    futureStates.add(new State(state, king, move));
                 }
             }
             for (Piece checker : checkers) {
                 if (checker.defendedBy.isEmpty()) {
-                    futureStates.add(new Game(game, king, checker.getLocation()));
+                    futureStates.add(new State(state, king, checker.getLocation()));
                 }
             }
             return futureStates;
         } else {
             Piece soleChecker = checkers.get(0);
             for (Piece threat : soleChecker.threatenedBy) {
-                futureStates.add(new Game(game, threat, soleChecker.getLocation()));
+                futureStates.add(new State(state, threat, soleChecker.getLocation()));
             }
             for (int[] move : king.moves) {
-                futureStates.add(new Game(game, king, move));
+                futureStates.add(new State(state, king, move));
             }
             if (soleChecker instanceof Queen || soleChecker instanceof Rook || soleChecker instanceof Bishop) {
-                List[] data = checkForBlockers(game, king, soleChecker);
+                List[] data = checkForBlockers(state, king, soleChecker);
                 List<Piece> pieces = data[0];
                 List<int[]> locations = data[1];
                 for (int i = 0; i < pieces.size(); i++) {
-                    futureStates.add(new Game(game, pieces.get(i), locations.get(i)));
+                    futureStates.add(new State(state, pieces.get(i), locations.get(i)));
                 }
             }
         }
@@ -44,8 +44,8 @@ class DecisionMaker  {
         return futureStates;
     }
 
-    static boolean checkResolution(Piece king, Game game, List<Piece> checkers) {
-        Board board = game.board;
+    static boolean checkResolution(Piece king, State state, List<Piece> checkers) {
+        Board board = state.board;
         if (checkers.size() > 1) {
             if (!king.moves.isEmpty()) {
                 board.move(king, king.moves.get(0));
@@ -54,24 +54,24 @@ class DecisionMaker  {
         } else {
             Piece soleChecker = checkers.get(0);
             if (!soleChecker.threatenedBy.isEmpty()) {
-                game.kill(soleChecker.threatenedBy.get(0), soleChecker);
+                state.kill(soleChecker.threatenedBy.get(0), soleChecker);
                 return true;
             } else if (!king.moves.isEmpty()) {
                 board.move(king, king.moves.get(0));
                 return true;
             } else {
                 return (soleChecker instanceof Queen || soleChecker instanceof Rook || soleChecker instanceof Bishop) &&
-                        checkForBlock(game, king, soleChecker);
+                        checkForBlock(state, king, soleChecker);
             }
         }
     }
 
-    private static List[] checkForBlockers(Game game, Piece king, Piece checker) {
+    private static List[] checkForBlockers(State state, Piece king, Piece checker) {
         List<Piece> pieces = new ArrayList<>();
         List<int[]> locations = new ArrayList<>();
 
         List<int[]> lineOfSight = checker.pathToEnemyKing;
-        List<Piece> friendlyPieces = game.pieces.getPiecesBelongingToTeam(king.getTeam());
+        List<Piece> friendlyPieces = state.pieces.getPiecesBelongingToTeam(king.getTeam());
         for (Piece friendlyPiece : friendlyPieces) {
             List<int[]> intersection = Piece.intersectLocationSets(friendlyPiece.moves, lineOfSight);
             if (!intersection.isEmpty()) {
@@ -85,15 +85,15 @@ class DecisionMaker  {
         return new List[] {pieces, locations};
     }
 
-    private static boolean checkForBlock(Game game, Piece king, Piece checker) {
+    private static boolean checkForBlock(State state, Piece king, Piece checker) {
         boolean canBlock = false;
         List<int[]> lineOfSight = checker.pathToEnemyKing;
-        List<Piece> friendlyPieces = game.pieces.getPiecesBelongingToTeam(king.getTeam());
+        List<Piece> friendlyPieces = state.pieces.getPiecesBelongingToTeam(king.getTeam());
         for (Piece friendlyPiece : friendlyPieces) {
             List<int[]> intersection = Piece.intersectLocationSets(friendlyPiece.moves, lineOfSight);
             if (!intersection.isEmpty()) {
                 canBlock = true;
-                game.board.move(friendlyPiece, intersection.get(0));
+                state.board.move(friendlyPiece, intersection.get(0));
             }
         }
 
@@ -111,24 +111,24 @@ class DecisionMaker  {
         return checkers;
     }
 
-    static List<Game> makeMoves(List<Piece> pieceSet, Game game) {
-        List<Game> nextStates = new ArrayList<>();
+    static List<State> makeMoves(List<Piece> pieceSet, State state) {
+        List<State> nextStates = new ArrayList<>();
         for (Piece piece : pieceSet) {
             for (Piece threatenedPiece : piece.threatening) {
-                nextStates.add(new Game(game, piece, threatenedPiece.getLocation()));
+                nextStates.add(new State(state, piece, threatenedPiece.getLocation()));
             }
             for (int[] location : piece.moves) {
-                nextStates.add(new Game(game, piece, location));
+                nextStates.add(new State(state, piece, location));
             }
         }
         return nextStates;
     }
 
-    static void makeMove(List<Piece> pieceSet, Game game) {
+    static void makeMove(List<Piece> pieceSet, State state) {
         boolean killMade = false;
         for (Piece piece : pieceSet) {
             if (!piece.threatening.isEmpty()) {
-                game.kill(piece, piece.threatening.get(0));
+                state.kill(piece, piece.threatening.get(0));
                 killMade = true;
                 break;
             }
@@ -144,7 +144,7 @@ class DecisionMaker  {
                 }
                 Piece piece = pieceSet.get(chosenPiece);
                 int chosenMove = rand.nextInt(piece.moves.size());
-                game.board.move(piece, piece.moves.get(chosenMove));
+                state.board.move(piece, piece.moves.get(chosenMove));
             }
         }
     }
