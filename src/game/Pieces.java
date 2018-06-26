@@ -94,20 +94,20 @@ public class Pieces {
         return totalValue;
     }
 
-    void calculate() {
-        calculateMovesThreateningDefending();
-        calculateThreatenedByDefendedBy();
-
-        correctKingsPostures();
-        correctionAlgorithm();
-    }
-
     void resetMovedThisTurnFlags() {
         for (List<Piece> pieceSet : pieceSets) {
             for (Piece piece : pieceSet) {
                 piece.movedThisTurn = false;
             }
         }
+    }
+
+    void calculate() {
+        calculateMovesThreateningDefending();
+        calculateThreatenedByDefendedBy();
+
+        correctKingsPostures();
+        correctionAlgorithm();
     }
 
     private void calculateMovesThreateningDefending() {

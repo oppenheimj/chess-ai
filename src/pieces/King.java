@@ -74,6 +74,7 @@ public class King extends PointThreatPiece {
     private boolean cancelSpaceWithOtherKing(int[] space, Pieces pieces) {
         Piece enemyKing = pieces.getKingOfTeam(enemy);
         List<int[]> moves = enemyKing.moves;
+
         for (int[] move : moves) {
             if (Arrays.equals(move, space)) {
                 enemyKing.moves.remove(move);

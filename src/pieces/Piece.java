@@ -16,13 +16,13 @@ public abstract class Piece {
 
     public boolean movedThisTurn;
 
-    public List<int[]> moves;
-    public List<Piece> threatening;
-    public List<Piece> threatenedBy;
-    public List<Piece> defending;
-    public List<Piece> defendedBy;
+    public List<int[]> moves = new ArrayList<>();
+    public List<Piece> threatening = new ArrayList<>();
+    public List<Piece> threatenedBy = new ArrayList<>();
+    public List<Piece> defending = new ArrayList<>();
+    public List<Piece> defendedBy = new ArrayList<>();
 
-    public List<int[]> pathToEnemyKing;
+    public List<int[]> pathToEnemyKing = new ArrayList<>();
 
     public Board board;
 

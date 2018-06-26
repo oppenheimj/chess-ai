@@ -35,19 +35,4 @@ public class Board {
     public Piece anyPieceAtLocation(int[] location) {
         return board[location[0]][location[1]];
     }
-
-    void display() {
-        System.out.println(getState());
-    }
-
-    String getState() {
-        StringBuilder sb = new StringBuilder();
-        for (Piece[] row : board) {
-            for (Piece piece : row) {
-                sb.append(piece == null ? "   " : piece.getSymbol());
-            }
-            sb.append("\n");
-        }
-        return sb.toString();
-    }
 }
