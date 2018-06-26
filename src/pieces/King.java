@@ -8,16 +8,19 @@ import java.util.ArrayList;
 
 public class King extends PointThreatPiece {
 
-    private Pieces pieces;
-
-    public King(Board board, String team, int[] location, Pieces pieces) {
+    public King(Board board, String team, int[] location) {
         symbol = "ki";
+        value = 0;
         this.board = board;
         this.location = location;
-        this.pieces = pieces;
         setTeam(team);
         clearPostures();
         board.move(this, location);
+    }
+
+    public King clone(Board board) {
+        int[] newLocation = location.clone();
+        return new King(board, team, newLocation);
     }
 
     public void calculateMoves() {
@@ -47,11 +50,11 @@ public class King extends PointThreatPiece {
         }
     }
 
-    public void correctKingPosture() {
+    public void correctKingPosture(Pieces pieces) {
         List<int[]> movesToRemove = new ArrayList<>();
 
         for (int[] move : moves) {
-            if (cancelSpaceWithOtherKing(move) || !validSpaceForKing((move))) {
+            if (cancelSpaceWithOtherKing(move, pieces) || !validSpaceForKing(move, pieces)) {
                 movesToRemove.add(move);
             }
         }
@@ -68,9 +71,10 @@ public class King extends PointThreatPiece {
         threatening.removeAll(threateningToRemove);
     }
 
-    private boolean cancelSpaceWithOtherKing(int[] space) {
+    private boolean cancelSpaceWithOtherKing(int[] space, Pieces pieces) {
         Piece enemyKing = pieces.getKingOfTeam(enemy);
         List<int[]> moves = enemyKing.moves;
+
         for (int[] move : moves) {
             if (Arrays.equals(move, space)) {
                 enemyKing.moves.remove(move);
@@ -80,7 +84,7 @@ public class King extends PointThreatPiece {
         return false;
     }
 
-    private boolean validSpaceForKing(int[] space) {
+    private boolean validSpaceForKing(int[] space, Pieces pieces) {
         List<Piece> enemyPieces = pieces.getPiecesBelongingToTeam(enemy);
         for (Piece enemyPiece : enemyPieces) {
             List<int[]> moves = enemyPiece instanceof Pawn ? ((Pawn) enemyPiece).corners : enemyPiece.moves;

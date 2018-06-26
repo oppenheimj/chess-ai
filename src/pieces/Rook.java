@@ -6,6 +6,7 @@ public class Rook extends ZoneThreatPiece {
 
     public Rook(Board board, String team, int[] location) {
         symbol = "r";
+        value = 5;
         NUMBER_OF_ZONES = 4;
 
         this.board = board;
@@ -13,6 +14,11 @@ public class Rook extends ZoneThreatPiece {
 
         setTeam(team);
         board.move(this, location);
+    }
+
+    public Rook clone(Board board) {
+        int[] newLocation = location.clone();
+        return new Rook(board, team, newLocation);
     }
 
     public int[] locationGenerator(int spaces, int index) {

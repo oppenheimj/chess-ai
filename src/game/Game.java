@@ -1,84 +1,75 @@
 package game;
 
-import pieces.*;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
-    public Board board;
-    public Pieces pieces;
+    static int maxDepth = 5;
+    static int currentDepth = 0;
 
-    private String turn = "W";
-    private Boolean check = false;
-    private List<Piece> checkers = null;
-    private List<String> states = new ArrayList<>();
+    public Game() {}
 
-    public Game() {
-        board = new Board();
-        pieces = new Pieces(board);
-        pieces.calculate();
-    }
+    public static void play() {
+        int turns = 100;
 
-    public Game(Game otherGame) {
-        board = otherGame.board;
-        pieces = otherGame.pieces;
-        turn = otherGame.turn;
-        check = otherGame.check;
-        checkers = otherGame.checkers;
-        states = otherGame.states;
-    }
+        State previousState = new State();
+        State nextState;
 
-    void kill(Piece attacker, Piece victim) {
-        //TODO remove after bug fixed
-        if (victim instanceof King) {
-            displayLastStates();
-            System.out.println("ERROR: KILLING KING");
-            System.exit(0);
+        for (int i = 0; i < turns; i++) {
+            previousState.display();
+            previousState.displayStatusText();
+
+            nextState = previousState.getNextState();
+            previousState = nextState;
         }
-        board.move(attacker, victim.getLocation());
-        pieces.deletePiece(victim);
-        attacker.movedThisTurn = true;
     }
 
-    public void nextState(Boolean showResult) {
-        pieces.resetMovedThisTurnFlags();
-        List<Piece> currentTurnPieces = pieces.getPiecesBelongingToTeam(turn);
+    public static void advancedPlay() {
 
-        if (check) {
-            pieces.calculate();
-            Piece king = pieces.getKingOfTeam(turn);
-            if (!DecisionMaker.checkResolution(king, this, checkers)) {
-                displayLastStates();
-                System.out.println("GG! " + (turn.equals("W") ? "B" : "W") + " wins!");
-                System.exit(0);
-            } else {
-                pieces.calculate();
-                updateCheckState(currentTurnPieces);
-            }
+        State previousState = new State();
+        State nextState;
+        int turns = 20;
+
+        for (int i = 0; i < turns; i++) {
+            previousState.display();
+            previousState.displayStatusText();
+            analyze(previousState);
+
+            nextState = previousState.getNextState();
+            previousState = nextState;
+        }
+    }
+
+    public static void depthAnalyzer() {
+        State startState = new State();
+        analyze(startState);
+    }
+
+    private static void analyze(State state) {
+        if (currentDepth == maxDepth) {
+            state.derivedValue = state.value;
         } else {
-            DecisionMaker.makeMove(currentTurnPieces, this);
-            pieces.calculate();
-            updateCheckState(currentTurnPieces);
-        }
-
-        turn = turn == "W" ? "B" : "W";
-        states.add(board.getState());
-
-        if (showResult) {
-            board.display();
+            currentDepth++;
+            state.calculateFutureStates();
+            for (State futureState : state.getAllPossibleFutureStates()) {
+                analyze(futureState);
+            }
+            currentDepth--;
+            state.derivedValue = lowestDerivedValue(state.getAllPossibleFutureStates());
+            if (currentDepth > 0) {
+                state.clearFutureStates();
+            }
         }
     }
 
-    private void updateCheckState(List<Piece> currentTurnPieces) {
-        checkers = DecisionMaker.checkDetection(pieces.getKingOfTeam(turn.equals("W") ? "B" : "W"), currentTurnPieces);
-        check = !checkers.isEmpty();
-    }
+    private static double lowestDerivedValue(List<State> states) {
+        double lowestDerivedValue = states.get(0).derivedValue;
 
-    private void displayLastStates() {
-        //TODO will break if game was absurdly short
-        for (int i = states.size()-6; i < states.size(); i++) {
-            System.out.println(states.get(i) + "\n**********************\n");
+        for (State state : states) {
+            if (state.derivedValue < lowestDerivedValue) {
+                lowestDerivedValue = state.derivedValue;
+            }
         }
+
+        return lowestDerivedValue;
     }
 }

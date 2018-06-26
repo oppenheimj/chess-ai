@@ -6,10 +6,16 @@ public class Knight extends PointThreatPiece {
 
     public Knight(Board board, String team, int[] location) {
         symbol = "kn";
+        value = 3;
         this.board = board;
         this.location = location;
         setTeam(team);
         board.move(this, location);
+    }
+
+    public Knight clone(Board board) {
+        int[] newLocation = location.clone();
+        return new Knight(board, team, newLocation);
     }
 
     public void calculateMoves() {

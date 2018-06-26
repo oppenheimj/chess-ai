@@ -16,8 +16,6 @@ public class Board {
         int[] oldLocation = piece.getLocation();
         board[oldLocation[0]][oldLocation[1]] = null;
         board[newLocation[0]][newLocation[1]] = piece;
-        piece.setLocation(newLocation);
-        piece.movedThisTurn = true;
     }
 
     public boolean locationInBounds(int[] location) {
@@ -36,20 +34,5 @@ public class Board {
 
     public Piece anyPieceAtLocation(int[] location) {
         return board[location[0]][location[1]];
-    }
-
-    void display() {
-        System.out.println(getState());
-    }
-
-    String getState() {
-        StringBuilder sb = new StringBuilder();
-        for (Piece[] row : board) {
-            for (Piece piece : row) {
-                sb.append(piece == null ? "   " : piece.getSymbol());
-            }
-            sb.append("\n");
-        }
-        return sb.toString();
     }
 }

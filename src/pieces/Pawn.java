@@ -9,10 +9,16 @@ public class Pawn extends PointThreatPiece {
 
     public Pawn(Board board, String team, int[] location) {
         symbol = "p";
+        value = 1;
         this.board = board;
         this.location = location;
         setTeam(team);
         board.move(this, location);
+    }
+
+    public Pawn clone(Board board) {
+        int[] newLocation = location.clone();
+        return new Pawn(board, team, newLocation);
     }
 
     private int[] locationGenerator(int spaces, int index) {
@@ -52,6 +58,7 @@ public class Pawn extends PointThreatPiece {
         }
 
         int[][] attackLocations = (color == 0 ? whiteAttackLocations : blackAttackLocations);
+
         for (int[] attackLocation : attackLocations) {
             if (board.locationInBounds(attackLocation)) {
                 if (board.unoccupiedLocation(attackLocation)) {

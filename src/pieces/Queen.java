@@ -6,6 +6,7 @@ public class Queen extends ZoneThreatPiece {
 
     public Queen(Board board, String team, int[] location) {
         symbol = "q";
+        value = 9;
         NUMBER_OF_ZONES = 8;
 
         this.board = board;
@@ -13,6 +14,11 @@ public class Queen extends ZoneThreatPiece {
 
         setTeam(team);
         board.move(this, location);
+    }
+
+    public Queen clone(Board board) {
+        int[] newLocation = location.clone();
+        return new Queen(board, team, newLocation);
     }
 
     public int[] locationGenerator(int spaces, int index) {

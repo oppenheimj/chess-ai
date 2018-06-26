@@ -9,21 +9,27 @@ import java.util.List;
 public abstract class Piece {
     String symbol;
     int[] location;
+    int value;
+
     String team;
     String enemy;
+
     public boolean movedThisTurn;
 
-    public List<int[]> moves;
-    public List<Piece> threatening;
-    public List<Piece> threatenedBy;
-    public List<Piece> defending;
-    public List<Piece> defendedBy;
+    public List<int[]> moves = new ArrayList<>();
+    public List<Piece> threatening = new ArrayList<>();
+    public List<Piece> threatenedBy = new ArrayList<>();
+    public List<Piece> defending = new ArrayList<>();
+    public List<Piece> defendedBy = new ArrayList<>();
 
-    public List<int[]> pathToEnemyKing;
+    public List<int[]> pathToEnemyKing = new ArrayList<>();
 
     public Board board;
 
     public abstract void calculateMoves();
+
+    public abstract Piece clone(Board board);
+
 
     public static List<int[]> intersectLocationSets(List<int[]> currentMoves, List<int[]> acceptableMoves) {
         List<int[]> intersection = new ArrayList<>();
@@ -40,12 +46,12 @@ public abstract class Piece {
     }
 
     void clearPostures() {
-        moves = new ArrayList<>();
-        threatening = new ArrayList<>();
-        threatenedBy = new ArrayList<>();
-        defending = new ArrayList<>();
-        defendedBy = new ArrayList<>();
-        pathToEnemyKing = new ArrayList<>();
+        moves.clear();
+        threatening.clear();
+        threatenedBy.clear();
+        defending.clear();
+        defendedBy.clear();
+        pathToEnemyKing.clear();
     }
 
     public void undoPostures() {
@@ -56,10 +62,10 @@ public abstract class Piece {
             defendedPiece.defendedBy.remove(this);
         }
         if (this instanceof Pawn) {
-            ((Pawn) this).corners = new ArrayList<>();
+            ((Pawn) this).corners.clear();
         }
-        threatening = new ArrayList<>();
-        defending = new ArrayList<>();
+        threatening.clear();
+        defending.clear();
     }
 
     public String getSymbol() {
@@ -92,5 +98,9 @@ public abstract class Piece {
 
     public void setLocation(int[] newLocation) {
         location = newLocation;
+    }
+
+    public int getValue() {
+        return value;
     }
 }

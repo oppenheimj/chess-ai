@@ -18,30 +18,27 @@ public class Pieces {
         initializePieces();
     }
 
-    public Pieces(Pieces pieces) {
-        blackPieces = pieces.blackPieces;
-        whitePieces = pieces.whitePieces;
-        pieceSets = pieces.pieceSets;
+    public Pieces(List<Piece> newBlackPieces, List<Piece> newWhitePieces, Board board) {
+        blackPieces = newBlackPieces;
+        whitePieces = newWhitePieces;
+        this.board = board;
+
+        pieceSets.add(blackPieces);
+        pieceSets.add(whitePieces);
     }
 
-    private List<King> getKings() {
-        List<King> kings = new ArrayList<>();
+    Pieces clone(Board board) {
+        List<Piece> newBlackPieces = new ArrayList<>();
+        List<Piece> newWhitePieces = new ArrayList<>();
 
-        kings.add((King)getKingOfTeam("W"));
-        kings.add((King)getKingOfTeam("B"));
-
-        kings.removeAll(Collections.singleton(null));
-
-        return kings;
-    }
-
-
-    void deletePiece(Piece piece) {
-        if (piece.getTeam().equals("W")) {
-            whitePieces.remove(piece);
-        } else {
-            blackPieces.remove(piece);
+        for (Piece piece : blackPieces) {
+            newBlackPieces.add(piece.clone(board));
         }
+        for (Piece piece : whitePieces) {
+            newWhitePieces.add(piece.clone(board));
+        }
+
+        return new Pieces(newBlackPieces, newWhitePieces, board);
     }
 
     public List<Piece> getPiecesBelongingToTeam(String team) {
@@ -60,20 +57,57 @@ public class Pieces {
         return king;
     }
 
+    private List<King> getKings() {
+        List<King> kings = new ArrayList<>();
+
+        kings.add((King)getKingOfTeam("W"));
+        kings.add((King)getKingOfTeam("B"));
+
+        kings.removeAll(Collections.singleton(null));
+
+        return kings;
+    }
+
+    void deletePiece(Piece piece) {
+        if (piece.getTeam().equals("W")) {
+            whitePieces.remove(piece);
+        } else {
+            blackPieces.remove(piece);
+        }
+    }
+
+    int numberOfPieces() {
+        return blackPieces.size() + whitePieces.size();
+    }
+
+    float getValue(String team) {
+        String otherTeam = team.equals("W") ? "B" : "W";
+        return (float)getTeamValue(team) / getTeamValue(otherTeam);
+    }
+
+    private int getTeamValue(String team) {
+        int totalValue = 0;
+        List<Piece> teamPieces = getPiecesBelongingToTeam(team);
+        for (Piece piece : teamPieces) {
+            totalValue += piece.getValue();
+        }
+        return totalValue;
+    }
+
+    void resetMovedThisTurnFlags() {
+        for (List<Piece> pieceSet : pieceSets) {
+            for (Piece piece : pieceSet) {
+                piece.movedThisTurn = false;
+            }
+        }
+    }
+
     void calculate() {
         calculateMovesThreateningDefending();
         calculateThreatenedByDefendedBy();
 
         correctKingsPostures();
         correctionAlgorithm();
-    }
-
-    public void resetMovedThisTurnFlags() {
-        for (List<Piece> pieceSet : pieceSets) {
-            for (Piece piece : pieceSet) {
-                piece.movedThisTurn = false;
-            }
-        }
     }
 
     private void calculateMovesThreateningDefending() {
@@ -104,7 +138,7 @@ public class Pieces {
     private void correctKingsPostures() {
         List<King> kings = getKings();
         for (King king : kings) {
-            king.correctKingPosture();
+            king.correctKingPosture(this);
         }
     }
 
@@ -211,11 +245,11 @@ public class Pieces {
                 if (team.equals("W")) {
                     pieces.add(new Queen(board, team, location));
                 } else {
-                    pieces.add(new King(board, team, location, this));
+                    pieces.add(new King(board, team, location));
                 }
             } else {
                 if (team.equals("W")) {
-                    pieces.add(new King(board, team, location, this));
+                    pieces.add(new King(board, team, location));
                 } else {
                     pieces.add(new Queen(board, team, location));
                 }
