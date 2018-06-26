@@ -1,13 +1,14 @@
-package game;
+package logic;
 
+import game.State;
 import pieces.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-class CheckManager {
+public class CheckManager {
 
-    static boolean checkDetected(Piece king, List<Piece> otherTeamsPieces) {
+    public static boolean checkDetected(Piece king, List<Piece> otherTeamsPieces) {
         for (Piece piece : otherTeamsPieces) {
             if (piece.threatening.contains(king)) {
                 return true;
@@ -16,7 +17,7 @@ class CheckManager {
         return false;
     }
 
-    static List<Piece> getCheckers(Piece king, List<Piece> otherTeamsPieces) {
+    public static List<Piece> getCheckers(Piece king, List<Piece> otherTeamsPieces) {
         List<Piece> checkers = new ArrayList<>();
         for (Piece piece : otherTeamsPieces) {
             if (piece.threatening.contains(king)) {
@@ -27,7 +28,7 @@ class CheckManager {
         return checkers;
     }
 
-    static List<State> checkResolutionStates(Piece king, State state, List<Piece> checkers) {
+    public static List<State> checkResolutionStates(Piece king, State state, List<Piece> checkers) {
         List<State> validFutureStates = new ArrayList<>();
 
         if (checkers.size() > 1) {
@@ -73,13 +74,13 @@ class CheckManager {
         for (Piece friendlyPiece : friendlyPieces) {
             List<int[]> intersection = Piece.intersectLocationSets(friendlyPiece.moves, lineOfSight);
             if (!intersection.isEmpty()) {
-                for (int[] location: intersection) {
+                for (int[] location : intersection) {
                     pieces.add(friendlyPiece);
                     locations.add(location);
                 }
             }
         }
 
-        return new List[] {pieces, locations};
+        return new List[]{pieces, locations};
     }
 }

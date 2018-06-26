@@ -1,15 +1,16 @@
-package game;
+package logic;
 
+import game.*;
 import pieces.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-class DecisionMaker  {
+public class DecisionMaker  {
 
     private static int NUMBER_OF_PRUNED_FUTURE_STATES = 3;
 
-    static List<State> getFutureStates(List<Piece> pieceSet, State state) {
+    public static List<State> getFutureStates(List<Piece> pieceSet, State state) {
         List<State> futureStates = new ArrayList<>();
         for (Piece piece : pieceSet) {
             for (Piece threatenedPiece : piece.threatening) {
@@ -22,7 +23,7 @@ class DecisionMaker  {
         return futureStates;
     }
 
-    static State pickBestNextState(List<State> futureStates) {
+    public static State pickBestNextState(List<State> futureStates) {
         double greatestStateValue = futureStates.get(0).derivedValue;
         State greatestState = futureStates.get(0);
 

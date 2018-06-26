@@ -1,5 +1,6 @@
 package game;
 
+import logic.*;
 import pieces.*;
 
 import java.util.ArrayList;
@@ -10,14 +11,15 @@ public class State {
     public Board board;
     public Pieces pieces;
 
+    public List<State> prunedFutureStates;
+
     private String turn = "W";
     private Boolean check = false;
     private List<Piece> checkers = null;
     private List<State> allPossibleFutureStates = new ArrayList<>();
-    public List<State> prunedFutureStates;
     private String statusText = "";
-    public double derivedValue = 0;
 
+    public double derivedValue = 0;
     float value;
 
     State() {
@@ -27,7 +29,7 @@ public class State {
         value = pieces.getValue(turn);
     }
 
-    State(State previousState, Piece pieceToMove, int[] targetLocation) {
+    public State(State previousState, Piece pieceToMove, int[] targetLocation) {
         board = new Board();
         pieces = previousState.pieces.clone(board);
         turn = previousState.turn;
@@ -56,7 +58,7 @@ public class State {
         return DecisionMaker.pickBestNextState(allPossibleFutureStates);
     }
 
-    List<State> getAllPossibleFutureStates() {
+    public List<State> getAllPossibleFutureStates() {
         return allPossibleFutureStates;
     }
 
