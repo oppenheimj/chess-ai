@@ -156,7 +156,7 @@ public class Pieces {
                 for (int j = 1; j < board.BOARD_DIMENSION; j++) {
                     int[] nextLocation = locationGenerator(king, j, i);
                     if (board.locationInBounds(nextLocation)) {
-                        Piece pieceAtLocation = board.anyPieceAtLocation(nextLocation);
+                        Piece pieceAtLocation = board.pieceAtLocation(nextLocation);
                         if (pieceAtLocation != null) {
                             if (pieceAtLocation.getTeam().equals(king.getTeam())) {
                                 if (friendlySeen) {

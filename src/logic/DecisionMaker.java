@@ -5,10 +5,9 @@ import pieces.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class DecisionMaker  {
-
-    private static int NUMBER_OF_PRUNED_FUTURE_STATES = 3;
 
     public static List<State> getFutureStates(List<Piece> pieceSet, State state) {
         List<State> futureStates = new ArrayList<>();
@@ -25,47 +24,21 @@ public class DecisionMaker  {
 
     public static State pickBestNextState(List<State> futureStates) {
         double greatestStateValue = futureStates.get(0).derivedValue;
-        State greatestState = futureStates.get(0);
 
         for (State futureState : futureStates) {
             if (futureState.derivedValue > greatestStateValue) {
                 greatestStateValue = futureState.derivedValue;
-                greatestState = futureState;
             }
         }
 
-        return greatestState;
-    }
-
-    static State getLowestValueFutureStates(State state) {
-        List<State> prunedFutureStates = new ArrayList<>();
-
-        for (State futureState : state.getAllPossibleFutureStates()) {
-            prunedFutureStates = insertStateToList(prunedFutureStates, futureState);
-        }
-
-        state.prunedFutureStates = prunedFutureStates;
-        return pickBestNextState(prunedFutureStates);
-    }
-
-    private static List<State> insertStateToList(List<State> prunedFutureStates, State stateToAdd) {
-        if (prunedFutureStates.size() < NUMBER_OF_PRUNED_FUTURE_STATES) {
-            prunedFutureStates.add(stateToAdd);
-        } else {
-            State stateToRemove = prunedFutureStates.get(0);
-            double lowestValue = stateToRemove.derivedValue;
-
-            for (State state : prunedFutureStates) {
-                if (state.derivedValue < lowestValue) {
-                    lowestValue = state.derivedValue;
-                    stateToRemove = state;
-                }
+        List<State> tiedBestStates = new ArrayList<>();
+        for (State futureState : futureStates) {
+            if (futureState.derivedValue == greatestStateValue) {
+                tiedBestStates.add(futureState);
             }
-
-            prunedFutureStates.remove(stateToRemove);
-            prunedFutureStates.add(stateToAdd);
         }
+        Random rand = new Random();
 
-        return prunedFutureStates;
+        return tiedBestStates.get(rand.nextInt(tiedBestStates.size()));
     }
 }

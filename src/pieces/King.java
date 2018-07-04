@@ -44,7 +44,7 @@ public class King extends PointThreatPiece {
                 } else if (board.teamPieceAtLocation(enemy, nextLocation) != null) {
                     threatening.add(board.teamPieceAtLocation(enemy, nextLocation));
                 } else {
-                    defending.add(board.anyPieceAtLocation(nextLocation));
+                    defending.add(board.pieceAtLocation(nextLocation));
                 }
             }
         }

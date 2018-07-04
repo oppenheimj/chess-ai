@@ -3,6 +3,7 @@ package game;
 import pieces.*;
 
 public class Board {
+
     private Piece[][] board = new Piece[8][8];
     final int BOARD_DIMENSION = 8;
 
@@ -32,7 +33,7 @@ public class Board {
         return (piece != null && piece.getTeam().equals(team)) ? piece : null;
     }
 
-    public Piece anyPieceAtLocation(int[] location) {
+    public Piece pieceAtLocation(int[] location) {
         return board[location[0]][location[1]];
     }
 }
