@@ -65,8 +65,8 @@ public class Pawn extends PointThreatPiece {
                     corners.add(attackLocation);
                 } else if (board.teamPieceAtLocation(enemy, attackLocation) != null) {
                     threatening.add(board.teamPieceAtLocation(enemy, attackLocation));
-                } else if (!(board.anyPieceAtLocation(attackLocation) instanceof King)){
-                    defending.add(board.anyPieceAtLocation(attackLocation));
+                } else if (!(board.pieceAtLocation(attackLocation) instanceof King)){
+                    defending.add(board.pieceAtLocation(attackLocation));
                 }
             }
         }

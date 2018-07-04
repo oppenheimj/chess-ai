@@ -7,16 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class State {
-
     public Board board;
     public Pieces pieces;
 
-    public List<State> prunedFutureStates;
-
     private String turn = "W";
     private Boolean check = false;
+    private Boolean terminal = false;
     private List<Piece> checkers = null;
-    private List<State> allPossibleFutureStates = new ArrayList<>();
+    private List<State> futureStates = new ArrayList<>();
     private String statusText = "";
 
     public double derivedValue = 0;
@@ -35,61 +33,107 @@ public class State {
         turn = previousState.turn;
 
         pieces.resetMovedThisTurnFlags();
-
-        Piece targetPiece = board.anyPieceAtLocation(pieceToMove.getLocation());
+        Piece targetPiece = board.pieceAtLocation(pieceToMove.getLocation());
 
         if (board.unoccupiedLocation(targetLocation)) {
             move(targetPiece, targetLocation);
         } else {
-            kill(targetPiece, board.anyPieceAtLocation(targetLocation));
+            kill(targetPiece, board.pieceAtLocation(targetLocation));
         }
 
         changeTurn();
-        value = pieces.getValue(turn);
-
         pieces.calculate();
         updateCheckState();
+        value = check ? 0 : pieces.getValue(turn);
         updateStatusText();
-
-
     }
 
-    State getNextState() {
-        return DecisionMaker.pickBestNextState(allPossibleFutureStates);
-    }
-
-    public List<State> getAllPossibleFutureStates() {
-        return allPossibleFutureStates;
+    boolean isTerminal() {
+        return terminal;
     }
 
     void displayStatusText() {
         System.out.println(statusText);
     }
 
-    void clearFutureStates() {
-        allPossibleFutureStates = new ArrayList<>();
+    void display() {
+        System.out.println(getState() + "\n");
     }
 
-    private void updateStatusText() {
-        statusText += turn + "; " + value;
+    State getNextState() {
+        return DecisionMaker.pickBestNextState(futureStates);
+    }
 
+    public List<State> getFutureStates() {
+        return futureStates;
+    }
+
+    void clearFutureStates() {
+        futureStates = new ArrayList<>();
+    }
+
+    void calculateFutureStates() {
         if (check) {
-            statusText += "CHECK!";
+            List<State> checkResolutionStates = checkResolutionFutureStates();
+            if (checkResolutionStates.isEmpty()) {
+                value = 0;
+                terminal = true;
+            } else {
+                futureStates.addAll(checkResolutionStates);
+            }
+        } else {
+            List<State> otherFutureStates = otherFutureStates();
+            if (otherFutureStates.isEmpty()) {
+                terminal = true;
+            } else {
+                futureStates.addAll(otherFutureStates);
+            }
         }
     }
 
-    void display() {
-         System.out.println("------------------------\n" + getState() + "\n------------------------");
+    private List<State> checkResolutionFutureStates() {
+        List<State> nextStates = null;
+
+        if (check) {
+            Piece king = pieces.getKingOfTeam(turn);
+            nextStates = new ArrayList<>(CheckManager.checkResolutionStates(king, this, checkers));
+        }
+
+        return nextStates;
+    }
+
+    private List<State> otherFutureStates()  {
+        List<Piece> currentTurnPieces = pieces.getPiecesBelongingToTeam(turn);
+
+        return DecisionMaker.getFutureStates(currentTurnPieces, this);
+    }
+
+    private void updateCheckState() {
+        List<Piece> enemyTeamPieces = pieces.getPiecesBelongingToTeam(otherTeam());
+
+        check = CheckManager.checkDetected(pieces.getKingOfTeam(turn), enemyTeamPieces);
+        checkers = CheckManager.getCheckers(pieces.getKingOfTeam(turn), enemyTeamPieces);
     }
 
     private String getState() {
+        int r = 8;
         StringBuilder sb = new StringBuilder();
+        sb.append("    a   b   c   d   e   f   g   h\n");
+        sb.append("  ┌───┬───┬───┬───┬───┬───┬───┬───┐\n");
         for (Piece[] row : board.getBoard()) {
+            sb.append(r + " ");
             for (Piece piece : row) {
-                sb.append(piece == null ? "   " : piece.getSymbol());
+                sb.append("│" + (piece == null ? "   " : piece.getSymbol()));
             }
-            sb.append("\n");
+            sb.append("│ " + r-- +"\n");
+            if (row == board.getBoard()[board.getBoard().length-1]) {
+                sb.append("  └───┴───┴───┴───┴───┴───┴───┴───┘\n");
+            } else {
+                sb.append("  ├───┼───┼───┼───┼───┼───┼───┼───┤\n");
+            }
         }
+        sb.append("    a   b   c   d   e   f   g   h\n");
+
         return sb.toString();
     }
 
@@ -114,47 +158,11 @@ public class State {
         return turn.equals("W") ? "B" : "W";
     }
 
-    private void updateCheckState() {
-        List<Piece> enemyTeamPieces = pieces.getPiecesBelongingToTeam(otherTeam());
-
-        check = CheckManager.checkDetected(pieces.getKingOfTeam(turn), enemyTeamPieces);
-        checkers = CheckManager.getCheckers(pieces.getKingOfTeam(turn), enemyTeamPieces);
-    }
-
-    void calculateFutureStates() {
-        if (check) {
-            List<State> checkResolutionStates = checkResolutionFutureStates();
-            if (checkResolutionStates.isEmpty()) {
-                System.out.println("CHECKMATE A");
-                System.exit(0);
-            } else {
-                allPossibleFutureStates.addAll(checkResolutionStates);
-            }
-        } else {
-            List<State> otherFutureStates = otherFutureStates();
-            if (otherFutureStates.isEmpty()) {
-                System.out.println("NO MORE MOVES A");
-                System.exit(0);
-            } else {
-                allPossibleFutureStates.addAll(otherFutureStates);
-            }
-        }
-    }
-
-    private List<State> checkResolutionFutureStates() {
-        List<State> nextStates = null;
+    private void updateStatusText() {
+        statusText += turn + "; " + value;
 
         if (check) {
-            Piece king = pieces.getKingOfTeam(turn);
-            nextStates = new ArrayList<>(CheckManager.checkResolutionStates(king, this, checkers));
+            statusText += " CHECK!";
         }
-
-        return nextStates;
-    }
-
-    private List<State> otherFutureStates()  {
-        List<Piece> currentTurnPieces = pieces.getPiecesBelongingToTeam(turn);
-
-        return DecisionMaker.getFutureStates(currentTurnPieces, this);
     }
 }

@@ -1,47 +1,69 @@
 package game;
 
+import pieces.Piece;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 
 public class Game {
-    static int maxDepth = 5;
-    static int currentDepth = 0;
+    private static int maxDepth = 5;
+    private static int currentDepth = 0;
+    private static HashMap<String, Integer> letterToNumber;
+    private static Scanner scan = new Scanner(System.in);
 
-    public Game() {}
+    static {
+        letterToNumber = new HashMap<>();
+        letterToNumber.put("a", 0);
+        letterToNumber.put("b", 1);
+        letterToNumber.put("c", 2);
+        letterToNumber.put("d", 3);
+        letterToNumber.put("e", 4);
+        letterToNumber.put("f", 5);
+        letterToNumber.put("g", 6);
+        letterToNumber.put("h", 7);
+    }
 
-    public static void play() {
-        int turns = 100;
+    public static void start() {
+        State humanTurnState = new State();
+        State computerTurnState;
 
-        State previousState = new State();
-        State nextState;
+        humanTurnState.display();
 
-        for (int i = 0; i < turns; i++) {
-            previousState.display();
-            previousState.displayStatusText();
+        //TODO introduce haulting condition
+        while (true) {
+            computerTurnState = humanTurn(humanTurnState);
+            computerTurnState.displayStatusText();
+            computerTurnState.display();
 
-            nextState = previousState.getNextState();
-            previousState = nextState;
+            humanTurnState = computerTurn(computerTurnState);
+            humanTurnState.displayStatusText();
+            humanTurnState.display();
         }
     }
 
-    public static void advancedPlay() {
+    private static State humanTurn(State state) {
+        //TODO clean up this disaster
+        System.out.print("Enter move: ");
+        String input = scan.nextLine();
+        String[] splitString = input.split(" ");
 
-        State previousState = new State();
-        State nextState;
-        int turns = 20;
+        int[] location = {
+                8 - Integer.parseInt(Character.toString(splitString[0].charAt(1))),
+                letterToNumber.get(Character.toString(splitString[0].charAt(0)))
+        };
+        int[] targetLocation = {
+                8 - Integer.parseInt(Character.toString(splitString[1].charAt(1))),
+                letterToNumber.get(Character.toString(splitString[1].charAt(0)))
+        };
 
-        for (int i = 0; i < turns; i++) {
-            previousState.display();
-            previousState.displayStatusText();
-            analyze(previousState);
-
-            nextState = previousState.getNextState();
-            previousState = nextState;
-        }
+        Piece pieceToMove = state.board.pieceAtLocation(location);
+        return new State(state, pieceToMove, targetLocation);
     }
 
-    public static void depthAnalyzer() {
-        State startState = new State();
-        analyze(startState);
+    private static State computerTurn(State state) {
+        analyze(state);
+        return state.getNextState();
     }
 
     private static void analyze(State state) {
@@ -50,11 +72,11 @@ public class Game {
         } else {
             currentDepth++;
             state.calculateFutureStates();
-            for (State futureState : state.getAllPossibleFutureStates()) {
+            for (State futureState : state.getFutureStates()) {
                 analyze(futureState);
             }
             currentDepth--;
-            state.derivedValue = lowestDerivedValue(state.getAllPossibleFutureStates());
+            state.derivedValue = state.isTerminal() ? state.value : lowestDerivedValue(state.getFutureStates());
             if (currentDepth > 0) {
                 state.clearFutureStates();
             }
@@ -71,5 +93,22 @@ public class Game {
         }
 
         return lowestDerivedValue;
+    }
+
+    public static void advancedPlay() {
+        State previousState = new State();
+        State nextState;
+        int turns = 100;
+
+        for (int i = 0; i < turns; i++) {
+            System.out.println("Turn " + i);
+            previousState.displayStatusText();
+            previousState.display();
+
+            analyze(previousState);
+
+            nextState = previousState.getNextState();
+            previousState = nextState;
+        }
     }
 }

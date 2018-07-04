@@ -36,8 +36,8 @@ public abstract class ZoneThreatPiece extends Piece {
                             }
                         }
                     }
-                } else if (!(board.anyPieceAtLocation(nextLocation) instanceof King)) {
-                    defending.add(board.anyPieceAtLocation(nextLocation));
+                } else if (!(board.pieceAtLocation(nextLocation) instanceof King)) {
+                    defending.add(board.pieceAtLocation(nextLocation));
                 }
             }
         }
