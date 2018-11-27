@@ -7,162 +7,165 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class State {
-    public Board board;
-    public Pieces pieces;
+  public Board board;
+  public Pieces pieces;
 
-    private String turn = "W";
-    private Boolean check = false;
-    private Boolean terminal = false;
-    private List<Piece> checkers = null;
-    private List<State> futureStates = new ArrayList<>();
-    private String statusText = "";
+  private String turn = "W";
+  private Boolean check = false;
+  private Boolean terminal = false;
+  private List<Piece> checkers = null;
+  private List<State> futureStates = new ArrayList<>();
+  private String statusText = "";
 
-    public double derivedValue = 0;
-    float value;
+  public double derivedValue = 0;
+  float value;
 
-    State() {
-        board = new Board();
-        pieces = new Pieces(board);
-        pieces.calculate();
-        value = pieces.getValue(turn);
+  State() {
+    board = new Board();
+    pieces = new Pieces(board);
+    
+    update();
+  }
+
+  public State(State previousState, int[] fromLocation, int[] toLocation) {
+    board = new Board();
+    pieces = previousState.pieces.clone(board);
+    turn = previousState.turn;
+
+    pieces.resetMovedThisTurnFlags();
+
+    Piece targetPiece = board.pieceAtLocation(fromLocation);
+
+    if (board.unoccupiedLocation(toLocation)) {
+      move(targetPiece, toLocation);
+    } else {
+      kill(targetPiece, board.pieceAtLocation(toLocation));
     }
 
-    public State(State previousState, Piece pieceToMove, int[] targetLocation) {
-        board = new Board();
-        pieces = previousState.pieces.clone(board);
-        turn = previousState.turn;
+    changeTurn();
+    update();
+  }
 
-        pieces.resetMovedThisTurnFlags();
-        Piece targetPiece = board.pieceAtLocation(pieceToMove.getLocation());
+  private void update() {
+    pieces.calculate();
+    updateCheckState();
+    value = check ? 0 : pieces.getValue(turn);
+    updateStatusText();
+  }
 
-        if (board.unoccupiedLocation(targetLocation)) {
-            move(targetPiece, targetLocation);
-        } else {
-            kill(targetPiece, board.pieceAtLocation(targetLocation));
-        }
+  private void move(Piece piece, int[] newLocation) {
+    board.move(piece, newLocation);
+    piece.setLocation(newLocation);
+    piece.movedThisTurn = true;
+  }
 
-        changeTurn();
-        pieces.calculate();
-        updateCheckState();
-        value = check ? 0 : pieces.getValue(turn);
-        updateStatusText();
+  private void kill(Piece attacker, Piece victim) {
+    board.move(attacker, victim.getLocation());
+    attacker.setLocation(victim.getLocation());
+    pieces.deletePiece(victim);
+    attacker.movedThisTurn = true;
+  }
+
+  void calculateFutureStates() {
+    List<State> nextStates = check ? checkResolutionFutureStates() : otherFutureStates();
+
+    if (nextStates.isEmpty()) {
+      value = 0;
+      terminal = true;
+    } else {
+      futureStates.addAll(nextStates);
+    }
+  }
+
+  private List<State> checkResolutionFutureStates() {
+    List<State> nextStates = null;
+
+    if (check) {
+      Piece king = pieces.getKingOfTeam(turn);
+      nextStates = new ArrayList<>(CheckManager.checkResolutionStates(king, this, checkers));
     }
 
-    boolean isTerminal() {
-        return terminal;
+    return nextStates;
+  }
+
+  private List<State> otherFutureStates()  {
+    List<Piece> currentTurnPieces = pieces.getPiecesBelongingToTeam(turn);
+
+    return DecisionMaker.getFutureStates(currentTurnPieces, this);
+  }
+
+  private void updateCheckState() {
+    List<Piece> enemyTeamPieces = pieces.getPiecesBelongingToTeam(otherTeam());
+
+    checkers = CheckManager.getCheckers(pieces.getKingOfTeam(turn), enemyTeamPieces);
+    check = !checkers.isEmpty();
+  }
+
+  State getNextState() {
+    return DecisionMaker.pickBestNextState(futureStates);
+  }
+
+  public List<State> getFutureStates() {
+    return futureStates;
+  }
+
+  void clearFutureStates() {
+    futureStates = new ArrayList<>();
+  }
+
+  private String getState() {
+    StringBuilder stringBuilder = new StringBuilder();
+    int rowNumber = 8;
+
+    stringBuilder.append("    a   b   c   d   e   f   g   h\n");
+    stringBuilder.append("  ┌───┬───┬───┬───┬───┬───┬───┬───┐\n");
+
+    for (Piece[] rowOfPieces : board.getBoard()) {
+      stringBuilder.append(rowNumber + " ");
+
+      for (Piece piece : rowOfPieces) {
+        stringBuilder.append("│" + (piece == null ? "   " : piece.getSymbol()));
+      }
+
+      stringBuilder.append("│ " + rowNumber-- + "\n");
+
+      if (rowOfPieces == board.getBoard()[board.getBoard().length - 1]) {
+        stringBuilder.append("  └───┴───┴───┴───┴───┴───┴───┴───┘\n");
+      } else {
+        stringBuilder.append("  ├───┼───┼───┼───┼───┼───┼───┼───┤\n");
+      }
     }
 
-    void displayStatusText() {
-        System.out.println(statusText);
+    stringBuilder.append("    a   b   c   d   e   f   g   h\n");
+
+    return stringBuilder.toString();
+  }
+
+  void display() {
+    System.out.println(getState() + "\n");
+  }
+
+  private void updateStatusText() {
+    statusText += turn + "; " + value;
+
+    if (check) {
+      statusText += " CHECK!";
     }
+  }
 
-    void display() {
-        System.out.println(getState() + "\n");
-    }
+  void displayStatusText() {
+    System.out.println(statusText);
+  }
 
-    State getNextState() {
-        return DecisionMaker.pickBestNextState(futureStates);
-    }
+  private void changeTurn() {
+    turn = otherTeam();
+  }
 
-    public List<State> getFutureStates() {
-        return futureStates;
-    }
+  private String otherTeam() {
+    return turn.equals("W") ? "B" : "W";
+  }
 
-    void clearFutureStates() {
-        futureStates = new ArrayList<>();
-    }
-
-    void calculateFutureStates() {
-        if (check) {
-            List<State> checkResolutionStates = checkResolutionFutureStates();
-            if (checkResolutionStates.isEmpty()) {
-                value = 0;
-                terminal = true;
-            } else {
-                futureStates.addAll(checkResolutionStates);
-            }
-        } else {
-            List<State> otherFutureStates = otherFutureStates();
-            if (otherFutureStates.isEmpty()) {
-                terminal = true;
-            } else {
-                futureStates.addAll(otherFutureStates);
-            }
-        }
-    }
-
-    private List<State> checkResolutionFutureStates() {
-        List<State> nextStates = null;
-
-        if (check) {
-            Piece king = pieces.getKingOfTeam(turn);
-            nextStates = new ArrayList<>(CheckManager.checkResolutionStates(king, this, checkers));
-        }
-
-        return nextStates;
-    }
-
-    private List<State> otherFutureStates()  {
-        List<Piece> currentTurnPieces = pieces.getPiecesBelongingToTeam(turn);
-
-        return DecisionMaker.getFutureStates(currentTurnPieces, this);
-    }
-
-    private void updateCheckState() {
-        List<Piece> enemyTeamPieces = pieces.getPiecesBelongingToTeam(otherTeam());
-
-        check = CheckManager.checkDetected(pieces.getKingOfTeam(turn), enemyTeamPieces);
-        checkers = CheckManager.getCheckers(pieces.getKingOfTeam(turn), enemyTeamPieces);
-    }
-
-    private String getState() {
-        int r = 8;
-        StringBuilder sb = new StringBuilder();
-        sb.append("    a   b   c   d   e   f   g   h\n");
-        sb.append("  ┌───┬───┬───┬───┬───┬───┬───┬───┐\n");
-        for (Piece[] row : board.getBoard()) {
-            sb.append(r + " ");
-            for (Piece piece : row) {
-                sb.append("│" + (piece == null ? "   " : piece.getSymbol()));
-            }
-            sb.append("│ " + r-- +"\n");
-            if (row == board.getBoard()[board.getBoard().length-1]) {
-                sb.append("  └───┴───┴───┴───┴───┴───┴───┴───┘\n");
-            } else {
-                sb.append("  ├───┼───┼───┼───┼───┼───┼───┼───┤\n");
-            }
-        }
-        sb.append("    a   b   c   d   e   f   g   h\n");
-
-        return sb.toString();
-    }
-
-    private void move(Piece piece, int[] newLocation) {
-        board.move(piece, newLocation);
-        piece.setLocation(newLocation);
-        piece.movedThisTurn = true;
-    }
-
-    private void kill(Piece attacker, Piece victim) {
-        board.move(attacker, victim.getLocation());
-        attacker.setLocation(victim.getLocation());
-        pieces.deletePiece(victim);
-        attacker.movedThisTurn = true;
-    }
-
-    private void changeTurn() {
-        turn = otherTeam();
-    }
-
-    private String otherTeam() {
-        return turn.equals("W") ? "B" : "W";
-    }
-
-    private void updateStatusText() {
-        statusText += turn + "; " + value;
-
-        if (check) {
-            statusText += " CHECK!";
-        }
-    }
+  boolean isTerminal() {
+    return terminal;
+  }
 }

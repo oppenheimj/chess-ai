@@ -7,255 +7,255 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Pieces {
-    private List<Piece> blackPieces = new ArrayList<>();
-    private List<Piece> whitePieces = new ArrayList<>();
-    private List<List> pieceSets = new ArrayList<>();
+  private List<Piece> blackPieces = new ArrayList<>();
+  private List<Piece> whitePieces = new ArrayList<>();
+  private List<List> pieceSets = new ArrayList<>();
 
-    private Board board;
+  private Board board;
 
-    public Pieces(Board board) {
-        this.board = board;
-        initializePieces();
+  public Pieces(Board board) {
+    this.board = board;
+    initializePieces();
+  }
+
+  public Pieces(List<Piece> newBlackPieces, List<Piece> newWhitePieces, Board board) {
+    blackPieces = newBlackPieces;
+    whitePieces = newWhitePieces;
+    this.board = board;
+
+    pieceSets.add(blackPieces);
+    pieceSets.add(whitePieces);
+  }
+
+  Pieces clone(Board board) {
+    List<Piece> newBlackPieces = new ArrayList<>();
+    List<Piece> newWhitePieces = new ArrayList<>();
+
+    for (Piece piece : blackPieces) {
+      newBlackPieces.add(piece.clone(board));
+    }
+    for (Piece piece : whitePieces) {
+      newWhitePieces.add(piece.clone(board));
     }
 
-    public Pieces(List<Piece> newBlackPieces, List<Piece> newWhitePieces, Board board) {
-        blackPieces = newBlackPieces;
-        whitePieces = newWhitePieces;
-        this.board = board;
+    return new Pieces(newBlackPieces, newWhitePieces, board);
+  }
 
-        pieceSets.add(blackPieces);
-        pieceSets.add(whitePieces);
+  public List<Piece> getPiecesBelongingToTeam(String team) {
+    return team.equals("W") ? whitePieces : blackPieces;
+  }
+
+  public Piece getKingOfTeam(String team) {
+    List<Piece> pieces = getPiecesBelongingToTeam(team);
+    Piece king = null;
+    for (Piece piece : pieces) {
+      if (piece instanceof King) {
+        king = piece;
+      }
     }
 
-    Pieces clone(Board board) {
-        List<Piece> newBlackPieces = new ArrayList<>();
-        List<Piece> newWhitePieces = new ArrayList<>();
+    return king;
+  }
 
-        for (Piece piece : blackPieces) {
-            newBlackPieces.add(piece.clone(board));
+  private List<King> getKings() {
+    List<King> kings = new ArrayList<>();
+
+    kings.add((King)getKingOfTeam("W"));
+    kings.add((King)getKingOfTeam("B"));
+
+    kings.removeAll(Collections.singleton(null));
+
+    return kings;
+  }
+
+  void deletePiece(Piece piece) {
+    if (piece.getTeam().equals("W")) {
+      whitePieces.remove(piece);
+    } else {
+      blackPieces.remove(piece);
+    }
+  }
+
+  int numberOfPieces() {
+    return blackPieces.size() + whitePieces.size();
+  }
+
+  float getValue(String team) {
+    String otherTeam = team.equals("W") ? "B" : "W";
+    return (float)getTeamValue(team) / getTeamValue(otherTeam);
+  }
+
+  private int getTeamValue(String team) {
+    int totalValue = 0;
+    List<Piece> teamPieces = getPiecesBelongingToTeam(team);
+    for (Piece piece : teamPieces) {
+      totalValue += piece.getValue();
+    }
+    return totalValue;
+  }
+
+  void resetMovedThisTurnFlags() {
+    for (List<Piece> pieceSet : pieceSets) {
+      for (Piece piece : pieceSet) {
+        piece.movedThisTurn = false;
+      }
+    }
+  }
+
+  void calculate() {
+    calculateMoves();
+    calculateThreatenedAndDefendedBy();
+
+    correctKingsPostures();
+    correctionAlgorithm();
+  }
+
+  private void calculateMoves() {
+    for (List<Piece> pieceSet : pieceSets) {
+      for (Piece piece : pieceSet) {
+        piece.calculateMoves();
+      }
+    }
+  }
+
+  private void calculateThreatenedAndDefendedBy() {
+    for (List<Piece> friendlies : pieceSets) {
+      for (Piece friendly : friendlies) {
+        if (!friendly.threatening.isEmpty()) {
+          for (Piece enemy : friendly.threatening) {
+            enemy.threatenedBy.add(friendly);
+          }
         }
-        for (Piece piece : whitePieces) {
-            newWhitePieces.add(piece.clone(board));
+        if (!friendly.defending.isEmpty()) {
+          for (Piece defendedFriendly : friendly.defending) {
+            defendedFriendly.defendedBy.add(friendly);
+          }
         }
-
-        return new Pieces(newBlackPieces, newWhitePieces, board);
+      }
     }
+  }
 
-    public List<Piece> getPiecesBelongingToTeam(String team) {
-        return team.equals("W") ? whitePieces : blackPieces;
+  private void correctKingsPostures() {
+    List<King> kings = getKings();
+    for (King king : kings) {
+      king.correctKingPosture(this);
     }
+  }
 
-    public Piece getKingOfTeam(String team) {
-        List<Piece> pieces = getPiecesBelongingToTeam(team);
-        Piece king = null;
-        for (Piece piece : pieces) {
-            if (piece instanceof King) {
-                king = piece;
-            }
-        }
+  //TODO rename this
+  private void correctionAlgorithm() {
+    List<King> kings = getKings();
 
-        return king;
-    }
-
-    private List<King> getKings() {
-        List<King> kings = new ArrayList<>();
-
-        kings.add((King)getKingOfTeam("W"));
-        kings.add((King)getKingOfTeam("B"));
-
-        kings.removeAll(Collections.singleton(null));
-
-        return kings;
-    }
-
-    void deletePiece(Piece piece) {
-        if (piece.getTeam().equals("W")) {
-            whitePieces.remove(piece);
-        } else {
-            blackPieces.remove(piece);
-        }
-    }
-
-    int numberOfPieces() {
-        return blackPieces.size() + whitePieces.size();
-    }
-
-    float getValue(String team) {
-        String otherTeam = team.equals("W") ? "B" : "W";
-        return (float)getTeamValue(team) / getTeamValue(otherTeam);
-    }
-
-    private int getTeamValue(String team) {
-        int totalValue = 0;
-        List<Piece> teamPieces = getPiecesBelongingToTeam(team);
-        for (Piece piece : teamPieces) {
-            totalValue += piece.getValue();
-        }
-        return totalValue;
-    }
-
-    void resetMovedThisTurnFlags() {
-        for (List<Piece> pieceSet : pieceSets) {
-            for (Piece piece : pieceSet) {
-                piece.movedThisTurn = false;
-            }
-        }
-    }
-
-    void calculate() {
-        calculateMovesThreateningDefending();
-        calculateThreatenedByDefendedBy();
-
-        correctKingsPostures();
-        correctionAlgorithm();
-    }
-
-    private void calculateMovesThreateningDefending() {
-        for (List<Piece> pieceSet : pieceSets) {
-            for (Piece piece : pieceSet) {
-                piece.calculateMoves();
-            }
-        }
-    }
-
-    private void calculateThreatenedByDefendedBy() {
-        for (List<Piece> friendlies : pieceSets) {
-            for (Piece friendly : friendlies) {
-                if (!friendly.threatening.isEmpty()) {
-                    for (Piece enemy : friendly.threatening) {
-                        enemy.threatenedBy.add(friendly);
-                    }
-                }
-                if (!friendly.defending.isEmpty()) {
-                    for (Piece defendedFriendly : friendly.defending) {
-                        defendedFriendly.defendedBy.add(friendly);
-                    }
-                }
-            }
-        }
-    }
-
-    private void correctKingsPostures() {
-        List<King> kings = getKings();
-        for (King king : kings) {
-            king.correctKingPosture(this);
-        }
-    }
-
-    //TODO rename this
-    private void correctionAlgorithm() {
-        List<King> kings = getKings();
-
-        for (King king : kings) {
-            for (int i = 0; i < 8; i++) {
-                boolean friendlySeen = false;
-                boolean enemySeen = false;
-                Piece friendly = null;
-                Piece enemy = null;
-                List<int[]> locationsTraversed = new ArrayList<>();
-                for (int j = 1; j < board.BOARD_DIMENSION; j++) {
-                    int[] nextLocation = locationGenerator(king, j, i);
-                    if (board.locationInBounds(nextLocation)) {
-                        Piece pieceAtLocation = board.pieceAtLocation(nextLocation);
-                        if (pieceAtLocation != null) {
-                            if (pieceAtLocation.getTeam().equals(king.getTeam())) {
-                                if (friendlySeen) {
-                                    break;
-                                } else {
-                                    friendlySeen = true;
-                                    friendly = pieceAtLocation;
-                                }
-                            } else {
-                                if ((i < 4 && (pieceAtLocation instanceof Rook || pieceAtLocation instanceof Queen)) ||
-                                        (i >= 4 && (pieceAtLocation instanceof Bishop || pieceAtLocation instanceof Queen)) && friendlySeen) {
-                                    enemySeen = true;
-                                    enemy = pieceAtLocation;
-                                    break;
-                                } else {
-                                    break;
-                                }
-                            }
-                        } else {
-                            locationsTraversed.add(nextLocation);
-                        }
-                    }
-                }
-                if (friendlySeen && enemySeen) {
-                    friendly.moves = Piece.intersectLocationSets(friendly.moves, locationsTraversed);
-                    boolean threateningEnemy = friendly.threatening.contains(enemy);
-                    friendly.undoPostures();
-                    if (threateningEnemy) {
-                        friendly.threatening.add(enemy);
-                        enemy.threatenedBy.add(friendly);
-                    }
-                }
-            }
-        }
-    }
-
-    private int[] locationGenerator(Piece piece, int spaces, int index) {
-        int[] location = piece.getLocation();
-
-        int[][] nextLocations = {
-                {location[0]-spaces, location[1]},
-                {location[0], location[1]+spaces},
-                {location[0]+spaces, location[1]},
-                {location[0], location[1]-spaces},
-                {location[0]-spaces, location[1]+spaces},
-                {location[0]+spaces, location[1]+spaces},
-                {location[0]+spaces, location[1]-spaces},
-                {location[0]-spaces, location[1]-spaces}
-        };
-
-        return nextLocations[index];
-    }
-
-    private void initializePieces() {
-        blackPieces.addAll(generatePowerRow("B", 0));
-        blackPieces.addAll(generatePawnRow("B", 1));
-
-        whitePieces.addAll(generatePawnRow("W", 6));
-        whitePieces.addAll(generatePowerRow("W", 7));
-
-        pieceSets.add(blackPieces);
-        pieceSets.add(whitePieces);
-    }
-
-    private List<Piece> generatePawnRow(String team, int row) {
-        List<Piece> pieces = new ArrayList<>();
-        for (int i = 0; i < board.BOARD_DIMENSION; i++) {
-            int[] location = new int[]{row, i};
-            pieces.add(new Pawn(board, team, location));
-        }
-
-        return pieces;
-    }
-
-    private List<Piece> generatePowerRow(String team, int row) {
-        List<Piece> pieces = new ArrayList<>();
-        for (int i = 0; i < board.BOARD_DIMENSION; i++) {
-            int[] location = new int[]{row, i};
-            if (i == 0 || i == 7) {
-                pieces.add(new Rook(board, team, location));
-            } else if (i == 1 || i == 6) {
-                pieces.add(new Knight(board, team, location));
-            } else if (i == 2 || i == 5) {
-                pieces.add(new Bishop(board, team, location));
-            } else if (i == 3) {           
-                if (team.equals("W")) {
-                    pieces.add(new Queen(board, team, location));
+    for (King king : kings) {
+      for (int i = 0; i < 8; i++) {
+        boolean friendlySeen = false;
+        boolean enemySeen = false;
+        Piece friendly = null;
+        Piece enemy = null;
+        List<int[]> locationsTraversed = new ArrayList<>();
+        for (int j = 1; j < board.BOARD_DIMENSION; j++) {
+          int[] nextLocation = locationGenerator(king, j, i);
+          if (board.locationInBounds(nextLocation)) {
+            Piece pieceAtLocation = board.pieceAtLocation(nextLocation);
+            if (pieceAtLocation != null) {
+              if (pieceAtLocation.getTeam().equals(king.getTeam())) {
+                if (friendlySeen) {
+                  break;
                 } else {
-                    pieces.add(new King(board, team, location));
+                  friendlySeen = true;
+                  friendly = pieceAtLocation;
                 }
+              } else {
+                if ((i < 4 && (pieceAtLocation instanceof Rook || pieceAtLocation instanceof Queen)) ||
+                  (i >= 4 && (pieceAtLocation instanceof Bishop || pieceAtLocation instanceof Queen)) && friendlySeen) {
+                  enemySeen = true;
+                  enemy = pieceAtLocation;
+                  break;
+                } else {
+                  break;
+                }
+              }
             } else {
-                if (team.equals("W")) {
-                    pieces.add(new King(board, team, location));
-                } else {
-                    pieces.add(new Queen(board, team, location));
-                }
+                locationsTraversed.add(nextLocation);
             }
+          }
         }
-
-        return pieces;
+        if (friendlySeen && enemySeen) {
+          friendly.moves = Piece.intersectLocationSets(friendly.moves, locationsTraversed);
+          boolean threateningEnemy = friendly.threatening.contains(enemy);
+          friendly.undoPostures();
+          if (threateningEnemy) {
+            friendly.threatening.add(enemy);
+            enemy.threatenedBy.add(friendly);
+          }
+        }
+      }
     }
+  }
+
+  private int[] locationGenerator(Piece piece, int spaces, int index) {
+    int[] location = piece.getLocation();
+
+    int[][] nextLocations = {
+      { location[0] - spaces, location[1] },
+      { location[0], location[1] + spaces },
+      { location[0] + spaces, location[1] },
+      { location[0], location[1] - spaces },
+      { location[0] - spaces, location[1] + spaces },
+      { location[0] + spaces, location[1] + spaces },
+      { location[0] + spaces, location[1] - spaces },
+      { location[0] - spaces, location[1] - spaces }
+    };
+
+    return nextLocations[index];
+  }
+
+  private void initializePieces() {
+    blackPieces.addAll(generatePowerRow("B", 0));
+    blackPieces.addAll(generatePawnRow("B", 1));
+
+    whitePieces.addAll(generatePawnRow("W", 6));
+    whitePieces.addAll(generatePowerRow("W", 7));
+
+    pieceSets.add(blackPieces);
+    pieceSets.add(whitePieces);
+  }
+
+  private List<Piece> generatePawnRow(String team, int row) {
+    List<Piece> pieces = new ArrayList<>();
+    for (int i = 0; i < board.BOARD_DIMENSION; i++) {
+      int[] location = new int[]{row, i};
+      pieces.add(new Pawn(board, team, location));
+    }
+
+    return pieces;
+  }
+
+  private List<Piece> generatePowerRow(String team, int row) {
+    List<Piece> pieces = new ArrayList<>();
+    for (int i = 0; i < board.BOARD_DIMENSION; i++) {
+      int[] location = new int[]{row, i};
+      if (i == 0 || i == 7) {
+        pieces.add(new Rook(board, team, location));
+      } else if (i == 1 || i == 6) {
+        pieces.add(new Knight(board, team, location));
+      } else if (i == 2 || i == 5) {
+        pieces.add(new Bishop(board, team, location));
+      } else if (i == 3) {           
+        if (team.equals("W")) {
+          pieces.add(new Queen(board, team, location));
+        } else {
+          pieces.add(new King(board, team, location));
+        }
+      } else {
+        if (team.equals("W")) {
+          pieces.add(new King(board, team, location));
+        } else {
+          pieces.add(new Queen(board, team, location));
+        }
+      }
+    }
+
+    return pieces;
+  }
 }

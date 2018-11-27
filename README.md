@@ -1,9 +1,28 @@
 ## Overview
-The objective of this project is to create a chess program that slaughters me. In its current form, the computer plays both sides. Pieces wander the board, killing each other by chance, and checkmate situations arise by chance. The check resolution algorithm seems to work flawlessly.
+The objective of this project is to create a chess program that slaughters me. The program currently generates a graph of states into the future and assigns values to states in order to "decide" the next move.
+
+## Setup
+Download and install the latest [Java Development Kit](https://www.oracle.com/technetwork/java/javase/downloads/jdk11-downloads-5066655.html) (JDK). If using Windows, make sure to add Java to your path by going to `Control Panel > Edit Environment Variables For Your Account > Edit Path` and add `C:\Program Files\Java\jdk-11.0.1\bin\`, for example.
+### Compile
+Browse to the project root (`chess-ai/`) and run
+```
+javac -cp src -d out src/Main.java
+```
+This creates all of the `*.class` files inside `out/`, organized by package.
+
+Note: If you run into problems related to encoding, create the following environment variable:
+```
+JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
+```
+### Run
+Browse to `chess-ai/out/` and run
+```
+java Main
+```
+This executes the program.
 
 ## Next steps
 * Develop algorithm for pruning tree of possible state transitions
-* Allow moves to be entered via command line so as to allow a human to play against the computer
 
 ## Code map
 ```

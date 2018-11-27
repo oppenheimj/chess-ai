@@ -13,10 +13,10 @@ public class DecisionMaker  {
         List<State> futureStates = new ArrayList<>();
         for (Piece piece : pieceSet) {
             for (Piece threatenedPiece : piece.threatening) {
-                futureStates.add(new State(state, piece, threatenedPiece.getLocation()));
+                futureStates.add(new State(state, piece.getLocation(), threatenedPiece.getLocation()));
             }
             for (int[] location : piece.moves) {
-                futureStates.add(new State(state, piece, location));
+                futureStates.add(new State(state, piece.getLocation(), location));
             }
         }
         return futureStates;
