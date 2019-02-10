@@ -34,22 +34,22 @@ public class CheckManager {
         if (checkers.size() > 1) {
             if (!king.moves.isEmpty()) {
                 for (int[] move : king.moves) {
-                    validFutureStates.add(new State(state, king, move));
+                    validFutureStates.add(new State(state, king.getLocation(), move));
                 }
             }
             for (Piece checker : checkers) {
                 if (checker.defendedBy.isEmpty() && king.threatening.contains(checker)) {
-                    validFutureStates.add(new State(state, king, checker.getLocation()));
+                    validFutureStates.add(new State(state, king.getLocation(), checker.getLocation()));
                 }
             }
         } else {
             Piece soleChecker = checkers.get(0);
 
             for (Piece threat : soleChecker.threatenedBy) {
-                validFutureStates.add(new State(state, threat, soleChecker.getLocation()));
+                validFutureStates.add(new State(state, threat.getLocation(), soleChecker.getLocation()));
             }
             for (int[] move : king.moves) {
-                validFutureStates.add(new State(state, king, move));
+                validFutureStates.add(new State(state, king.getLocation(), move));
             }
             if (soleChecker instanceof Queen || soleChecker instanceof Rook || soleChecker instanceof Bishop) {
                 List[] blockersAndLocations = checkForBlockers(state, king, soleChecker);
@@ -57,7 +57,7 @@ public class CheckManager {
                 List<int[]> locations = blockersAndLocations[1];
 
                 for (int i = 0; i < pieces.size(); i++) {
-                    validFutureStates.add(new State(state, pieces.get(i), locations.get(i)));
+                    validFutureStates.add(new State(state, pieces.get(i).getLocation(), locations.get(i)));
                 }
             }
         }
